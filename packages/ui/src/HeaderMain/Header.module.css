@@ -1,0 +1,71 @@
+.header {
+    display: flex;
+    color: var(--text-color);
+    padding: 15px;
+    margin-bottom: 30px;
+}
+
+.header__logo {
+    display: flex;
+    width: 365px;
+    align-content: center;
+}
+
+.header__logo_img {
+    width: 157px;
+    height: 157px;
+    margin-right: 20px;
+}
+
+.header__logo_title {
+    display: flex;
+    align-items: center;
+    line-height: 80%;
+    padding-left: 10px;
+    font-size: 35px;
+    font-weight: 500;
+    color: var(--text-color);
+}
+
+.header__univer_img {
+    max-width: 510px;
+    height: 190px;
+}
+
+.header__left {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.header__right {
+    color: var(--text-color);
+}
+
+.header__title_h1 {
+    position: relative;
+    z-index: 1;
+    font-size: 40px;
+    color: var(--text-color);
+    padding: 20px 20px;
+    border-radius: 10px;
+    margin-bottom: 30px;
+}
+
+.header__title_h1::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;         /* прижимаем к правому краю экрана */
+    width: 100vw;     /* растягиваем на всю ширину окна */
+    height: 100%;
+    background-color: rgba(137, 191, 233, 0.2);
+    border-radius: 10px 0 0 10px;
+    z-index: -1;      /* чтобы фон был за текстом */
+}
+
+.header__desc_p {
+    margin-left: 20px;
+    color: var(--text-color);
+    font-size: 20px;
+}

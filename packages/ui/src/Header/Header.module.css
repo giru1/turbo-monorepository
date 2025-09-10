@@ -1,0 +1,131 @@
+.header {
+    display: flex;
+    color: var(--text-color);
+    padding: 15px;
+    margin-bottom: 30px;
+}
+
+.header__logo {
+    display: flex;
+    align-content: center;
+}
+
+@media (max-width: 900px) {
+    .header__logo {
+        justify-content: center;
+    }
+}
+
+.header__logo_img {
+    max-width: 157px;
+    width: 100%;
+    height: auto;
+    margin-right: 20px;
+    display: block;
+}
+
+@media (max-width: 1200px) {
+    .header__logo_img {
+        margin-right: 10px;
+    }
+}
+
+@media (max-width: 600px) {
+    .header__logo_img {
+        margin-right: 0;
+        max-width: 130px;
+    }
+}
+
+.header__logo_title {
+    display: flex;
+    align-items: center;
+    line-height: 80%;
+    padding-left: 10px;
+    font-size: 35px;
+    font-weight: 500;
+    color: var(--text-color);
+    max-width: 350px;
+}
+
+@media (max-width: 1200px) {
+    .header__logo_title {
+        font-size: 27px;
+        padding-left: 0;
+    }
+}
+
+@media (max-width: 600px) {
+    .header__logo_title {
+        font-size: 20px;
+        padding-left: 0;
+        max-width: 200px;
+    }
+}
+
+.header__univer_img {
+    max-width: 510px;
+    width: 100%;
+    height: auto;     /* пропорции сохраняются */
+    display: block;
+}
+
+@media (max-width: 900px) {
+    .header__univer_img {
+        margin: 0 auto;
+    }
+}
+
+.header__title_h1 {
+    position: relative;
+    z-index: 1;
+    font-size: 40px;
+    color: var(--text-color);
+    padding: 20px 20px;
+    border-radius: 10px;
+    margin-bottom: 30px;
+}
+
+@media (max-width: 1200px) {
+    .header__title_h1 {
+        font-size: 30px;
+        margin: 30px 0;
+    }
+}
+
+@media (max-width: 600px) {
+    .header__title_h1 {
+        font-size: 19px;
+    }
+}
+
+.header__title_h1::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;         /* прижимаем к правому краю экрана */
+    width: 100vw;     /* растягиваем на всю ширину окна */
+    height: 100%;
+    background-color: rgba(137, 191, 233, 0.2);
+    border-radius: 10px 0 0 10px;
+    z-index: -1;      /* чтобы фон был за текстом */
+}
+
+.header__desc_p {
+    margin-left: 20px;
+    color: var(--text-color);
+    font-size: 20px;
+}
+
+@media (max-width: 600px) {
+    .header__desc_p {
+        font-size: 14px;
+    }
+}
+
+.header__rigth {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}

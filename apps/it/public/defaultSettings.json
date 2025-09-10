@@ -1,0 +1,46 @@
+{
+  "AppSettings": {
+    "v8i": "/orgma.ru.v8i",
+    "auth": false,
+    "WidgetType": {
+      "icon": true,
+      "dialog": false
+    }
+  },
+  "UserSettings": {
+    "Settings": {
+      "Header": "Настройки",
+      "OpenInNew": true,
+      "TreeView": true,
+      "LastSelect": [false, ""],
+      "SortAZ": false
+    },
+    "Help": {
+      "Header": "Помощь/Поддержка",
+      "tel": "8 (3532) 50-06-06 доб. 644",
+      "email": "oit@orgma.ru",
+      "site": "https://it.orgma.ru",
+      "HelpMessage": {
+        "method": "POST",
+        "address": "https://www.site.ru/helpMessage"
+      }
+    },
+    "Setup": {
+      "Header": "Локальная установка",
+      "Pages": [
+        {
+          "Title": "Скачивание",
+          "PageTextAddress": "https://jsonplaceholder.typicode.com/posts"
+        },
+        {
+          "Title": "Установка",
+          "PageText": "https://jsonplaceholder.typicode.com/posts/1"
+        },
+        {
+          "Title": "Готово",
+          "PageText": "https://jsonplaceholder.typicode.com/posts/1/comments"
+        }
+      ]
+    }
+  }
+}
