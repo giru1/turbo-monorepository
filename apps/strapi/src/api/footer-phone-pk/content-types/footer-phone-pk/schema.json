@@ -1,0 +1,19 @@
+{
+  "kind": "singleType",
+  "collectionName": "footer_phone_pks",
+  "info": {
+    "singularName": "footer-phone-pk",
+    "pluralName": "footer-phone-pks",
+    "displayName": "footer_phonePK"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "footer_phonePK": {
+      "type": "string",
+      "required": true
+    }
+  }
+}

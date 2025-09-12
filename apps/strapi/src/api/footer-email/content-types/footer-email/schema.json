@@ -1,0 +1,19 @@
+{
+  "kind": "singleType",
+  "collectionName": "footer_emails",
+  "info": {
+    "singularName": "footer-email",
+    "pluralName": "footer-emails",
+    "displayName": "footer_email"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "footer_email": {
+      "type": "string",
+      "required": true
+    }
+  }
+}

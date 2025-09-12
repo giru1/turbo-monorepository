@@ -1,0 +1,18 @@
+{
+  "collectionName": "components_shared_ssylka",
+  "info": {
+    "displayName": "Ссылка"
+  },
+  "options": {},
+  "attributes": {
+    "title": {
+      "type": "string",
+      "required": true
+    },
+    "link": {
+      "type": "string",
+      "required": true
+    }
+  },
+  "config": {}
+}

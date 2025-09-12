@@ -1,0 +1,20 @@
+{
+  "kind": "collectionType",
+  "collectionName": "menu_footers",
+  "info": {
+    "singularName": "menu-footer",
+    "pluralName": "menu-footers",
+    "displayName": "menu_footer"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "item_menu": {
+      "type": "component",
+      "component": "shared.ssylka",
+      "repeatable": true
+    }
+  }
+}
