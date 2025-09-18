@@ -1,17 +1,15 @@
 {
   "collectionName": "components_shared_ssylka",
   "info": {
-    "displayName": "Ссылка"
+    "displayName": "Link"
   },
   "options": {},
   "attributes": {
-    "title": {
-      "type": "string",
-      "required": true
+    "Link": {
+      "type": "string"
     },
-    "link": {
-      "type": "string",
-      "required": true
+    "Title": {
+      "type": "string"
     }
   },
   "config": {}

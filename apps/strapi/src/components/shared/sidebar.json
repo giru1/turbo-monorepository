@@ -1,0 +1,15 @@
+{
+  "collectionName": "components_shared_sidebars",
+  "info": {
+    "displayName": "Sidebar"
+  },
+  "options": {},
+  "attributes": {
+    "link": {
+      "type": "component",
+      "component": "shared.ssylka",
+      "repeatable": true
+    }
+  },
+  "config": {}
+}

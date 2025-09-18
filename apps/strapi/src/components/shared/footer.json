@@ -1,0 +1,27 @@
+{
+  "collectionName": "components_shared_footers",
+  "info": {
+    "displayName": "Footer"
+  },
+  "options": {},
+  "attributes": {
+    "FooterMenu": {
+      "type": "component",
+      "component": "shared.ssylka",
+      "repeatable": true
+    },
+    "FooterAddress": {
+      "type": "string"
+    },
+    "FooterPhone": {
+      "type": "string"
+    },
+    "FooterPhonePK": {
+      "type": "string"
+    },
+    "FooterEmail": {
+      "type": "string"
+    }
+  },
+  "config": {}
+}

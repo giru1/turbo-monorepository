@@ -1,0 +1,30 @@
+{
+  "kind": "collectionType",
+  "collectionName": "sites",
+  "info": {
+    "singularName": "site",
+    "pluralName": "sites",
+    "displayName": "Site"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "Footer": {
+      "type": "component",
+      "component": "shared.footer",
+      "repeatable": false
+    },
+    "Sidebar": {
+      "type": "component",
+      "component": "shared.sidebar",
+      "repeatable": false
+    },
+    "HeaderLeft": {
+      "type": "component",
+      "component": "shared.header-left",
+      "repeatable": false
+    }
+  }
+}

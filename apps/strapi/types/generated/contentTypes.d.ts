@@ -543,118 +543,6 @@ export interface ApiCategoryCategory extends Struct.CollectionTypeSchema {
   };
 }
 
-export interface ApiFooterAddressFooterAddress extends Struct.SingleTypeSchema {
-  collectionName: 'footer_addresses';
-  info: {
-    displayName: 'footer_address';
-    pluralName: 'footer-addresses';
-    singularName: 'footer-address';
-  };
-  options: {
-    draftAndPublish: true;
-  };
-  attributes: {
-    createdAt: Schema.Attribute.DateTime;
-    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
-      Schema.Attribute.Private;
-    footer_address: Schema.Attribute.Text & Schema.Attribute.Required;
-    locale: Schema.Attribute.String & Schema.Attribute.Private;
-    localizations: Schema.Attribute.Relation<
-      'oneToMany',
-      'api::footer-address.footer-address'
-    > &
-      Schema.Attribute.Private;
-    publishedAt: Schema.Attribute.DateTime;
-    updatedAt: Schema.Attribute.DateTime;
-    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
-      Schema.Attribute.Private;
-  };
-}
-
-export interface ApiFooterEmailFooterEmail extends Struct.SingleTypeSchema {
-  collectionName: 'footer_emails';
-  info: {
-    displayName: 'footer_email';
-    pluralName: 'footer-emails';
-    singularName: 'footer-email';
-  };
-  options: {
-    draftAndPublish: true;
-  };
-  attributes: {
-    createdAt: Schema.Attribute.DateTime;
-    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
-      Schema.Attribute.Private;
-    footer_email: Schema.Attribute.String & Schema.Attribute.Required;
-    locale: Schema.Attribute.String & Schema.Attribute.Private;
-    localizations: Schema.Attribute.Relation<
-      'oneToMany',
-      'api::footer-email.footer-email'
-    > &
-      Schema.Attribute.Private;
-    publishedAt: Schema.Attribute.DateTime;
-    updatedAt: Schema.Attribute.DateTime;
-    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
-      Schema.Attribute.Private;
-  };
-}
-
-export interface ApiFooterPhonePkFooterPhonePk extends Struct.SingleTypeSchema {
-  collectionName: 'footer_phone_pks';
-  info: {
-    displayName: 'footer_phonePK';
-    pluralName: 'footer-phone-pks';
-    singularName: 'footer-phone-pk';
-  };
-  options: {
-    draftAndPublish: true;
-  };
-  attributes: {
-    createdAt: Schema.Attribute.DateTime;
-    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
-      Schema.Attribute.Private;
-    footer_phonePK: Schema.Attribute.String & Schema.Attribute.Required;
-    locale: Schema.Attribute.String & Schema.Attribute.Private;
-    localizations: Schema.Attribute.Relation<
-      'oneToMany',
-      'api::footer-phone-pk.footer-phone-pk'
-    > &
-      Schema.Attribute.Private;
-    publishedAt: Schema.Attribute.DateTime;
-    updatedAt: Schema.Attribute.DateTime;
-    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
-      Schema.Attribute.Private;
-  };
-}
-
-export interface ApiFooterPhoneFooterPhone extends Struct.SingleTypeSchema {
-  collectionName: 'footer_phones';
-  info: {
-    displayName: 'footer_phone';
-    pluralName: 'footer-phones';
-    singularName: 'footer-phone';
-  };
-  options: {
-    draftAndPublish: true;
-  };
-  attributes: {
-    createdAt: Schema.Attribute.DateTime;
-    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
-      Schema.Attribute.Private;
-    footer_phone: Schema.Attribute.String & Schema.Attribute.Required;
-    locale: Schema.Attribute.String & Schema.Attribute.Private;
-    localizations: Schema.Attribute.Relation<
-      'oneToMany',
-      'api::footer-phone.footer-phone'
-    > &
-      Schema.Attribute.Private;
-    publishedAt: Schema.Attribute.DateTime;
-    updatedAt: Schema.Attribute.DateTime;
-    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
-      Schema.Attribute.Private;
-  };
-}
-
 export interface ApiGlobalGlobal extends Struct.SingleTypeSchema {
   collectionName: 'globals';
   info: {
@@ -687,12 +575,46 @@ export interface ApiGlobalGlobal extends Struct.SingleTypeSchema {
   };
 }
 
-export interface ApiMenuFooterMenuFooter extends Struct.CollectionTypeSchema {
-  collectionName: 'menu_footers';
+export interface ApiItSiteItSite extends Struct.CollectionTypeSchema {
+  collectionName: 'it_sites';
   info: {
-    displayName: 'menu_footer';
-    pluralName: 'menu-footers';
-    singularName: 'menu-footer';
+    displayName: 'ITSite';
+    pluralName: 'it-sites';
+    singularName: 'it-site';
+  };
+  options: {
+    draftAndPublish: true;
+  };
+  attributes: {
+    Card: Schema.Attribute.Component<'shared.card', true>;
+    createdAt: Schema.Attribute.DateTime;
+    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    Head: Schema.Attribute.Component<'shared.head', false>;
+    Header: Schema.Attribute.Component<'shared.header', false>;
+    LeftDescription: Schema.Attribute.Component<
+      'shared.left-description',
+      false
+    >;
+    locale: Schema.Attribute.String & Schema.Attribute.Private;
+    localizations: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::it-site.it-site'
+    > &
+      Schema.Attribute.Private;
+    publishedAt: Schema.Attribute.DateTime;
+    updatedAt: Schema.Attribute.DateTime;
+    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+  };
+}
+
+export interface ApiMainSiteMainSite extends Struct.CollectionTypeSchema {
+  collectionName: 'main_sites';
+  info: {
+    displayName: 'MainSite';
+    pluralName: 'main-sites';
+    singularName: 'main-site';
   };
   options: {
     draftAndPublish: true;
@@ -701,14 +623,142 @@ export interface ApiMenuFooterMenuFooter extends Struct.CollectionTypeSchema {
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
-    item_menu: Schema.Attribute.Component<'shared.ssylka', true>;
+    Head: Schema.Attribute.Component<'shared.head', false>;
     locale: Schema.Attribute.String & Schema.Attribute.Private;
     localizations: Schema.Attribute.Relation<
       'oneToMany',
-      'api::menu-footer.menu-footer'
+      'api::main-site.main-site'
     > &
       Schema.Attribute.Private;
     publishedAt: Schema.Attribute.DateTime;
+    updatedAt: Schema.Attribute.DateTime;
+    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+  };
+}
+
+export interface ApiNewsSiteNewsSite extends Struct.CollectionTypeSchema {
+  collectionName: 'news_sites';
+  info: {
+    displayName: 'NewsSite';
+    pluralName: 'news-sites';
+    singularName: 'news-site';
+  };
+  options: {
+    draftAndPublish: true;
+  };
+  attributes: {
+    Card: Schema.Attribute.Component<'shared.card', true>;
+    createdAt: Schema.Attribute.DateTime;
+    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    Head: Schema.Attribute.Component<'shared.head', false>;
+    Header: Schema.Attribute.Component<'shared.header', false>;
+    LeftDescription: Schema.Attribute.Component<
+      'shared.left-description',
+      false
+    >;
+    locale: Schema.Attribute.String & Schema.Attribute.Private;
+    localizations: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::news-site.news-site'
+    > &
+      Schema.Attribute.Private;
+    publishedAt: Schema.Attribute.DateTime;
+    updatedAt: Schema.Attribute.DateTime;
+    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+  };
+}
+
+export interface ApiPaySitePaySite extends Struct.CollectionTypeSchema {
+  collectionName: 'pay_sites';
+  info: {
+    displayName: 'PaySite';
+    pluralName: 'pay-sites';
+    singularName: 'pay-site';
+  };
+  options: {
+    draftAndPublish: true;
+  };
+  attributes: {
+    createdAt: Schema.Attribute.DateTime;
+    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    Head: Schema.Attribute.Component<'shared.head', false>;
+    Header: Schema.Attribute.Component<'shared.header', false>;
+    LeftDescription: Schema.Attribute.Component<
+      'shared.left-description',
+      false
+    >;
+    locale: Schema.Attribute.String & Schema.Attribute.Private;
+    localizations: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::pay-site.pay-site'
+    > &
+      Schema.Attribute.Private;
+    publishedAt: Schema.Attribute.DateTime;
+    updatedAt: Schema.Attribute.DateTime;
+    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+  };
+}
+
+export interface ApiSdoSiteSdoSite extends Struct.CollectionTypeSchema {
+  collectionName: 'sdo_sites';
+  info: {
+    displayName: 'SDOSite';
+    pluralName: 'sdo-sites';
+    singularName: 'sdo-site';
+  };
+  options: {
+    draftAndPublish: true;
+  };
+  attributes: {
+    Card: Schema.Attribute.Component<'shared.card', true>;
+    createdAt: Schema.Attribute.DateTime;
+    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    Head: Schema.Attribute.Component<'shared.head', false>;
+    Header: Schema.Attribute.Component<'shared.header', false>;
+    LeftDescription: Schema.Attribute.Component<
+      'shared.left-description',
+      false
+    >;
+    locale: Schema.Attribute.String & Schema.Attribute.Private;
+    localizations: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::sdo-site.sdo-site'
+    > &
+      Schema.Attribute.Private;
+    publishedAt: Schema.Attribute.DateTime;
+    updatedAt: Schema.Attribute.DateTime;
+    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+  };
+}
+
+export interface ApiSiteSite extends Struct.CollectionTypeSchema {
+  collectionName: 'sites';
+  info: {
+    displayName: 'Site';
+    pluralName: 'sites';
+    singularName: 'site';
+  };
+  options: {
+    draftAndPublish: true;
+  };
+  attributes: {
+    createdAt: Schema.Attribute.DateTime;
+    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    Footer: Schema.Attribute.Component<'shared.footer', false>;
+    HeaderLeft: Schema.Attribute.Component<'shared.header-left', false>;
+    locale: Schema.Attribute.String & Schema.Attribute.Private;
+    localizations: Schema.Attribute.Relation<'oneToMany', 'api::site.site'> &
+      Schema.Attribute.Private;
+    publishedAt: Schema.Attribute.DateTime;
+    Sidebar: Schema.Attribute.Component<'shared.sidebar', false>;
     updatedAt: Schema.Attribute.DateTime;
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
@@ -1229,12 +1279,13 @@ declare module '@strapi/strapi' {
       'api::article.article': ApiArticleArticle;
       'api::author.author': ApiAuthorAuthor;
       'api::category.category': ApiCategoryCategory;
-      'api::footer-address.footer-address': ApiFooterAddressFooterAddress;
-      'api::footer-email.footer-email': ApiFooterEmailFooterEmail;
-      'api::footer-phone-pk.footer-phone-pk': ApiFooterPhonePkFooterPhonePk;
-      'api::footer-phone.footer-phone': ApiFooterPhoneFooterPhone;
       'api::global.global': ApiGlobalGlobal;
-      'api::menu-footer.menu-footer': ApiMenuFooterMenuFooter;
+      'api::it-site.it-site': ApiItSiteItSite;
+      'api::main-site.main-site': ApiMainSiteMainSite;
+      'api::news-site.news-site': ApiNewsSiteNewsSite;
+      'api::pay-site.pay-site': ApiPaySitePaySite;
+      'api::sdo-site.sdo-site': ApiSdoSiteSdoSite;
+      'api::site.site': ApiSiteSite;
       'plugin::content-releases.release': PluginContentReleasesRelease;
       'plugin::content-releases.release-action': PluginContentReleasesReleaseAction;
       'plugin::i18n.locale': PluginI18NLocale;
