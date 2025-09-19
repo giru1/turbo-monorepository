@@ -105,7 +105,7 @@ a {
 }
 
 .contentBlock__listItem::before {
-  content: "—"; /* вместо дотсов ставим тире */
+  content: "—";
   position: absolute;
   left: 0;
   color: #00659b;

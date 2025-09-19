@@ -1,29 +1,65 @@
 'use client';
 import Container from "@mui/material/Container";
 import styles from './Footer.module.css';
-import Script from 'next/script'
+export { getFooterData } from "./FooterApi";
 
 import {Grid} from '@mui/material';
 import React from "react";
-export default function Footer() {
+
+interface FooterProps {
+    footerData: any;
+}
+
+export default function Footer({ footerData }: FooterProps) {
+    // Если данные не загружены, показываем заглушку
+    if (!footerData) {
+        return (
+            <footer className={styles.footer}>
+                <Container maxWidth="xl">
+                    <p>Загрузка футера...</p>
+                </Container>
+            </footer>
+        );
+    }
+
+    // Извлекаем данные из структуры
+    const address = footerData.addressData?.data?.footer_address;
+    const email = footerData.emailData?.data?.footer_email;
+    const phone = footerData.phoneData?.data?.footer_phone;
+    const phonePK = footerData.phonePKData?.data?.footer_phone_pk;
+
+    // Для коллекции menu-footers извлекаем атрибуты каждого элемента
+    const menuItems = footerData.menuData?.data || [];
+    const menuAttributes = menuItems.map((item: any) => item.attributes || {});
+
+    // Разделяем меню на две части
+    const firstMenuItems = menuAttributes.slice(0, 3);
+    const secondMenuItems = menuAttributes.slice(3, 6);
+
     return (
         <>
             <footer className={styles.footer}>
                 <Container maxWidth="xl" sx={{marginBottom: 2, marginTop: 2}}>
-                    {/* Top columns */}
                     <Grid container>
                         <Grid size={{xs: 12, sm: 6, md: 4}}>
                             <div className={styles.footerColumn}>
                                 <p className={styles.footerColumnP}>
-                                    Россия, 460000,<br/>
-                                    г. Оренбург, ул. Советская, 6<br/>
-                                    Тел. <a className={styles.footerLink} href="tel:+73532500603">+7 (3532) 50-06-20</a><br/>
-                                    E-mail: <a className={styles.footerLink}
-                                               href="mailto:office@orgma.ru">office@orgma.ru</a>
+                                    {address} <br/>
+                                    Тел.{" "}
+                                    <a className={styles.footerLink} href={`tel:${phone}`}>
+                                        {phone}
+                                    </a>
+                                    <br/>
+                                    E-mail:{" "}
+                                    <a className={styles.footerLink} href={`mailto:${email}`}>
+                                        {email}
+                                    </a>
                                 </p>
                                 <p className={styles.highlight}>
-                                    Приёмная комиссия: <a className={styles.footerLink} href="tel:+73532500603">+7
-                                    (3532) 50-06-03</a>
+                                    Приёмная комиссия:{" "}
+                                    <a className={styles.footerLink} href={`tel:${phonePK}`}>
+                                        {phonePK}
+                                    </a>
                                 </p>
                             </div>
                         </Grid>
@@ -33,13 +69,28 @@ export default function Footer() {
                             <div className={styles.footerColumn}>
                                 <h4 className={styles.columnTitle}>Контакты</h4>
                                 <ul className={styles.footerList}>
-                                    <li><a className={styles.footerLink}
-                                           href="https://www.orgma.ru/ru/component/k2/item/3775">Контакты</a></li>
-                                    <li><a className={styles.footerLink}
-                                           href="mailto:office@orgma.ru">office@orgma.ru</a></li>
-                                    <li><a className={styles.footerLink}
-                                           href="https://www.orgma.ru/ru/component/xmap/html/1?view=html">Карта
-                                        сайта</a></li>
+                                    {firstMenuItems.map((item: any, index: number) => (
+                                        <li key={index}>
+                                            <a className={styles.footerLink} href={item.link}>
+                                                {item.title}
+                                            </a>
+                                        </li>
+                                    ))}
+                                </ul>
+                            </div>
+                        </Grid>
+
+                        <Grid size={{xs: 12, sm: 6, md: 4}}>
+                            <div className={styles.footerColumn}>
+                                <h4 className={styles.columnTitle}>Контакты</h4>
+                                <ul className={styles.footerList}>
+                                    {secondMenuItems.map((item: any, index: number) => (
+                                        <li key={index}>
+                                            <a className={styles.footerLink} href={item.link}>
+                                                {item.title}
+                                            </a>
+                                        </li>
+                                    ))}
                                 </ul>
                             </div>
                         </Grid>
@@ -89,6 +140,5 @@ export default function Footer() {
 
                 </Container>
             </footer>
-            <Script src="WidgetMiBase.js"></Script>
         </>)
 }

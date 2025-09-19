@@ -1,95 +1,48 @@
-import Image from "next/image";
-import styles from "./page.module.css";
+'use client';
+
+import styles from "@/app/components/Content/Content.module.css";
+import {Box, Grid, Link, Typography} from "@mui/material";
+import Container from "@mui/material/Container";
+import React from "react";
+import BlockPay from "@/app/components/BlockPay/BlockPay";
 
 export default function Home() {
   return (
-    <div className={styles.page}>
-      <main className={styles.main}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol>
-          <li>
-            Get started by editing <code>src/app/page.tsx</code>.
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
 
-        <div className={styles.ctas}>
-          <a
-            className={styles.primary}
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className={styles.logo}
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-            className={styles.secondary}
-          >
-            Read our docs
-          </a>
-        </div>
-      </main>
-      <footer className={styles.footer}>
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
+      <Container maxWidth="xl" sx={{marginBottom: 4, marginTop: 4}}>
+        <main className={styles.content}>
+          <Grid container>
+            <Grid size={{xs: 12, md: 4, lg: 4, xl: 4}} order={{xs: 2, md: 1}}>
+              <div className={styles.content__left}>
+
+                {/* Подвал */}
+                <Box sx={{textAlign: 'center', mt: 4}}>
+                  <Typography variant="body2">
+                    <Link href="https://www.orgma.ru" target="_blank">orgma.ru</Link> |{' '}
+                    <Link href="#" target="_blank">Условия оплаты и возврат</Link> |{' '}
+                    <Link
+                        href="https://www.orgma.ru/sveden/document/politika-v-otnoshenii-obrabotki-personalnyh-dannyh.pdf"
+                        target="_blank">
+                      Политика конфиденциальности
+                    </Link>
+                  </Typography>
+                  <Typography variant="body2" sx={{mt: 1}}>
+                    Контактный телефон: <Link href="tel:+73532500606">+7 (3532)
+                    50-06-06</Link> добавочный <strong>628</strong>
+                  </Typography>
+                </Box>
+
+              </div>
+            </Grid>
+            <Grid size={{xs: 12, md: 8, lg: 8, xl: 8}} order={{xs: 1, md: 2}}>
+              <div className={styles.content__right}>
+                <BlockPay/>
+              </div>
+            </Grid>
+          </Grid>
+        </main>
+      </Container>
+
+
   );
 }

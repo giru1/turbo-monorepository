@@ -2,15 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -23,10 +15,24 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body className={`${geistSans.variable} ${geistMono.variable}`}>
+      <html lang="en" suppressHydrationWarning>
+      <Head/>
+      <body>
+      <Sidebar/>
+      <div className="main-container">
+        <Header
+            title={"Системы дистанционного образования"}
+            description={
+              <div className={styles.header__desc_p}>
+                Для входа во все системы используется <b>Единый идентификатор ВУЗа. Как получить идентификатор? </b><br/>
+                <br/>Если у вас возникли проблемы с доступом, обращайтесь по email:<b>623@orgmu.ru</b><br/>
+              </div>
+            }
+        />
         {children}
+        <Footer/>
+      </div>
       </body>
-    </html>
+      </html>
   );
 }

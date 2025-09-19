@@ -1,32 +1,26 @@
-'use client';
-import { Grid } from '@mui/material';
-import styles from './News.module.css';
+"use client";
+import { Grid } from "@mui/material";
 
-interface NewsProps {
+interface NewsDetailProps {
     title: string;
-    descSmall: string;
-    link?: string;
+    desc: string;
     date?: string;
     img?: string;
 }
 
-export default function News({title, descSmall, link, date, img}:NewsProps) {
-
+export default function NewsDetail({ title, desc, date, img }: NewsDetailProps) {
     return (
-        <Grid size={{xs: 12, sm: 6, md: 6, lg: 6}}>
-            <div className="news">
-                <div className="news-item">
-                    <div className="news-item-image">
-                        <img src={img} alt="Логотип" className={styles.header__logo_img}/>
+        <Grid size={{xs: 12}}>
+            <article className="bg-white rounded-2xl shadow-lg p-6">
+                <h1 className="text-2xl font-bold mb-2">{title}</h1>
+                <div className="text-gray-500 text-sm mb-4">{date}</div>
+                {img && (
+                    <div className="mb-6">
+                        <img src={img} alt={title} className="w-full rounded-xl object-cover" />
                     </div>
-                    <div className="news-item-content">
-                        <div className="news-item-date">{date}</div>
-                        <h4 className="news-item-title">{title}</h4>
-                        <div className="news-item-excerpt">{descSmall}</div>
-                        <a href={link} className="news-item-link">Подробнее →</a>
-                    </div>
-                </div>
-            </div>
+                )}
+                <div className="text-gray-800 leading-relaxed">{desc}</div>
+            </article>
         </Grid>
     );
 }
