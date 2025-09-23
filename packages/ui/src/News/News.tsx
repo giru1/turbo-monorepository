@@ -1,6 +1,7 @@
 "use client";
 import { Grid } from "@mui/material";
 import Link from "next/link";
+import styles from './News.module.css';
 
 interface NewsProps {
     title: string;
@@ -8,26 +9,25 @@ interface NewsProps {
     link?: string;
     date?: string;
     img?: string;
+    tags?: string[];
 }
 
-export default function News({ title, descSmall, link = "#", date, img }: NewsProps) {
+export default function News({ title, descSmall, link = "#", date, img, tags }: NewsProps) {
     return (
-        <Grid size={{xs: 12, sm: 6, md: 6, lg: 6}}>
-            <div className="border rounded-2xl shadow-md overflow-hidden bg-white flex flex-col h-full">
-                <div className="h-48 w-full overflow-hidden">
-                    <img src={img} alt={title} className="w-full h-full object-cover" />
+        <Grid size={{sm: 12, md: 6, lg: 6}}>
+            <div className={styles.news__item}>
+                <div className={styles.news__item_image}>
+                    <img src={img} alt={title}/>
                 </div>
-                <div className="p-4 flex flex-col flex-grow">
-                    <div className="text-gray-500 text-sm mb-2">{date}</div>
-                    <h4 className="text-lg font-semibold mb-2">{title}</h4>
-                    <p className="text-gray-700 flex-grow">{descSmall}</p>
-                    <Link
-                        href={`${link}`}
-                        className="mt-4 inline-block text-blue-600 font-medium hover:underline"
-                    >
+                <div className={styles.news__item_content}>
+                    <div className={styles.news__item_date}>{date}</div>
+                    <h4 className={styles.news__item_title}>{title}</h4>
+                    <p className={styles.news__item_excerpt}>{descSmall}</p>
+                    <Link href={link} className={styles.news__item_link}>
                         Подробнее →
                     </Link>
                 </div>
+                <div className={styles.news__item_tags}>{tags}</div>
             </div>
         </Grid>
     );

@@ -4,8 +4,13 @@
   "private": true,
   "exports": {
     ".": "./src/index.ts",
-    "./images/*": "./src/Header/images/*"
+    "./images/*": "./src/Header/images/*",
+    "./global.css": "./src/global.css"
   },
+  "files": [
+    "dist",
+    "src/global.css"
+  ],
   "scripts": {
     "lint": "eslint . --max-warnings 0",
     "generate:component": "turbo gen react-component",

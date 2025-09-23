@@ -1,13 +1,18 @@
-import type { NextConfig } from "next";
-
-const nextConfig: NextConfig = {
+const nextConfig = {
     output: 'export',
     trailingSlash: true,
     distDir: 'dist',
-    // assetPrefix: './', // ✅ Добавьте эту строку
     images: {
-        unoptimized: true, // ✅ Для статического экспорта
+        unoptimized: true,
     },
-};
+    experimental: {
+        externalDir: true, // ✅ Разрешаем импорт из внешних папок
+    },
+    transpilePackages: ['@repo/ui'],
+}
 
-export default nextConfig;
+
+module.exports = nextConfig;
+
+
+// export default nextConfig;

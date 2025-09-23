@@ -6,6 +6,9 @@ interface NewsDetailProps {
     desc: string;
     date?: string;
     img?: string;
+    images?: string[];
+    participants?: string[];
+    tags?: string[];
 }
 
 export default function NewsDetail({ title, desc, date, img }: NewsDetailProps) {

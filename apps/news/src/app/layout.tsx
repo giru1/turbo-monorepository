@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
-
+import "@repo/ui/global.css";
+import "./globals.css";
 import { Header, HeaderRight, Footer, Head, getFooterData } from "@repo/ui";
 
-import "./globals.css";
 import React from "react";
 
 import {Grid} from "@mui/material";
@@ -14,7 +14,7 @@ export const metadata: Metadata = {
 };
 
 
-export default async function RootLayout({children,}: Readonly<{ children: React.ReactNode; }>) {
+export default async function RootLayout({children}: Readonly<{ children: React.ReactNode; }>) {
   const footerData = await getFooterData();
   return (
       <html lang="en" suppressHydrationWarning>
@@ -24,7 +24,7 @@ export default async function RootLayout({children,}: Readonly<{ children: React
       <div className="main-container">
 
         <Container maxWidth="xl" sx={{marginBottom: 4, marginTop: { xs: 3, md: 5, lg: 10 }}}>
-          <header className="flex text-[var(--text-color)] p-[15px] mb-[30px]">
+          <header className="header">
             <Grid container>
               <Grid size={{xs: 12, md: 6, lg: 6, xl: 7}}>
                 <Header/>

@@ -1,0 +1,11 @@
+{
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@repo/styles": ["./packages/styles"],
+      "@repo/styles/*": ["./packages/styles/*"],
+      "@repo/ui": ["./packages/ui"],
+      "@repo/ui/*": ["./packages/ui/*"]
+    }
+  }
+}

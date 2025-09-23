@@ -1,4 +1,24 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+/* styles/content.module.css или в ваш существующий CSS */
+.content {
+    min-height: 60vh;
+}
 
+.content__left {
+    position: sticky;
+    top: 100px;
+}
+
+.content__right {
+    padding-left: 20px;
+}
+
+@media (max-width: 900px) {
+    .content__right {
+        padding-left: 0;
+        margin-top: 20px;
+    }
+
+    .content__left {
+        position: static;
+    }
+}
