@@ -9,10 +9,12 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@mui/icons-material": "^7.3.2",
     "@repo/ui": "workspace:*",
     "next": "15.5.2",
     "react": "19.1.0",
-    "react-dom": "19.1.0"
+    "react-dom": "19.1.0",
+    "react-responsive-carousel": "^3.2.23"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",

@@ -5,30 +5,19 @@
     "singularName": "author",
     "pluralName": "authors",
     "displayName": "Author",
-    "description": "Create authors for your content"
+    "description": "Авторы новостей"
   },
   "options": {
     "draftAndPublish": false
   },
-  "pluginOptions": {},
   "attributes": {
     "name": {
-      "type": "string"
+      "type": "string",
+      "required": true
     },
     "avatar": {
       "type": "media",
-      "multiple": false,
-      "required": false,
-      "allowedTypes": ["images", "files", "videos"]
-    },
-    "email": {
-      "type": "string"
-    },
-    "articles": {
-      "type": "relation",
-      "relation": "oneToMany",
-      "target": "api::article.article",
-      "mappedBy": "author"
+      "multiple": false
     }
   }
 }

@@ -1,31 +1,30 @@
 {
   "kind": "collectionType",
-  "collectionName": "categories",
+  "collectionName": "categorys",
   "info": {
     "singularName": "category",
-    "pluralName": "categories",
+    "pluralName": "categorys",
     "displayName": "Category",
-    "description": "Organize your content into categories"
+    "description": "Категории новостей"
   },
   "options": {
     "draftAndPublish": false
   },
-  "pluginOptions": {},
   "attributes": {
     "name": {
-      "type": "string"
+      "type": "string",
+      "required": true
     },
-    "slug": {
-      "type": "uid"
-    },
-    "articles": {
-      "type": "relation",
-      "relation": "oneToMany",
-      "target": "api::article.article",
-      "mappedBy": "category"
+    "alias": {
+      "type": "string",
+      "unique": true
     },
     "description": {
       "type": "text"
+    },
+    "ordering": {
+      "type": "integer",
+      "default": 0
     }
   }
 }

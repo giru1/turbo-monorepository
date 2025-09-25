@@ -13,7 +13,11 @@
     "start": "strapi start",
     "strapi": "strapi",
     "upgrade": "npx @strapi/upgrade latest",
-    "upgrade:dry": "npx @strapi/upgrade latest --dry"
+    "upgrade:dry": "npx @strapi/upgrade latest --dry",
+    "generate:schema": "node scripts/generate-schema.js",
+    "create:structure": "node scripts/create-structure.js",
+    "setup:news": "npm run create:structure && npm run generate:schema",
+    "import-news": "node scripts/import-news"
   },
   "dependencies": {
     "@avorati/strapi-provider-upload-minio": "^1.2.1",
@@ -22,6 +26,7 @@
     "@strapi/plugin-users-permissions": "5.23.4",
     "@strapi/provider-upload-aws-s3": "^5.23.4",
     "@strapi/strapi": "5.23.4",
+    "axios": "^1.12.2",
     "better-sqlite3": "11.3.0",
     "fs-extra": "^10.0.0",
     "mime-types": "^2.1.27",

@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import "@repo/ui/global.css";
 import "./globals.css";
-import { Header, HeaderRight, Footer, Head, getFooterData } from "@repo/ui";
+import { Header, HeaderRight, Footer, Head, getFooterData, Sidebar } from "@repo/ui";
 
 import React from "react";
 
@@ -20,7 +20,7 @@ export default async function RootLayout({children}: Readonly<{ children: React.
       <html lang="en" suppressHydrationWarning>
       <Head/>
       <body>
-      {/*<Sidebar/>*/}
+      <Sidebar/>
       <div className="main-container">
 
         <Container maxWidth="xl" sx={{marginBottom: 4, marginTop: { xs: 3, md: 5, lg: 10 }}}>

@@ -1,7 +1,9 @@
 'use client';
 import styles from "./page.module.css";
 import { Grid, Container, Typography, Box } from "@mui/material";
-import { News, NewsFilter } from "@repo/ui";
+import News from "../components/News/News";
+import NewsFilter from "../components/NewsFilter/NewsFilter";
+
 import React, { useState, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
 // import EnhancedNewsFilter from "./components/EnhancedNewsFilter";
@@ -103,7 +105,7 @@ export default function NewsListPage() {
 
         <main className={styles.content}>
           <Grid container spacing={3}>
-            <Grid item xs={12} md={4}>
+            <Grid size={{ xs:12, md: 4 }}>
               <div className={styles.content__left}>
                 <NewsFilter
                     onFilterChange={handleFilterChange}
@@ -112,22 +114,21 @@ export default function NewsListPage() {
                 />
               </div>
             </Grid>
-            <Grid item xs={12} md={8}>
+            <Grid size={{ xs:12, md: 8 }}>
               <div className={styles.content__right}>
                 <Typography variant="h6" sx={{ mb: 2 }}>
                   Найдено новостей: {filteredNews.length}
                 </Typography>
-                <Grid container spacing={3}>
+                <Grid container>
                   {filteredNews.map((item, idx) => (
-                      <Grid key={idx} item xs={12} sm={6}>
                         <News
+                            key={idx}
                             title={item.title}
                             descSmall={item.descSmall}
                             date={item.date}
                             link={item.link}
                             img={getNewsImage(item)}
                         />
-                      </Grid>
                   ))}
                 </Grid>
 

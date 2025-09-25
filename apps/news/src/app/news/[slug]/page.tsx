@@ -1,4 +1,4 @@
-import { NewsDetail } from "@repo/ui";
+import NewsDetail from "../../../components/NewsDetail/NewsDetail";
 import { notFound } from "next/navigation";
 import { NewsItem, NewsSlug, Participant } from "@/types/news";
 import { Grid, Container, Box } from "@mui/material";
