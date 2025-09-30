@@ -422,7 +422,7 @@ export interface ApiAuthorAuthor extends Struct.CollectionTypeSchema {
     draftAndPublish: false;
   };
   attributes: {
-    avatar: Schema.Attribute.Media;
+    avatar: Schema.Attribute.Media<'images'>;
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
@@ -433,6 +433,11 @@ export interface ApiAuthorAuthor extends Struct.CollectionTypeSchema {
     > &
       Schema.Attribute.Private;
     name: Schema.Attribute.String & Schema.Attribute.Required;
+    news_items: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::news-item.news-item'
+    >;
+    profile: Schema.Attribute.JSON;
     publishedAt: Schema.Attribute.DateTime;
     updatedAt: Schema.Attribute.DateTime;
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
@@ -441,11 +446,11 @@ export interface ApiAuthorAuthor extends Struct.CollectionTypeSchema {
 }
 
 export interface ApiCategoryCategory extends Struct.CollectionTypeSchema {
-  collectionName: 'categorys';
+  collectionName: 'categories';
   info: {
     description: '\u041A\u0430\u0442\u0435\u0433\u043E\u0440\u0438\u0438 \u043D\u043E\u0432\u043E\u0441\u0442\u0435\u0439';
     displayName: 'Category';
-    pluralName: 'categorys';
+    pluralName: 'categories';
     singularName: 'category';
   };
   options: {
@@ -457,6 +462,7 @@ export interface ApiCategoryCategory extends Struct.CollectionTypeSchema {
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
     description: Schema.Attribute.Text;
+    image: Schema.Attribute.Media<'images'>;
     locale: Schema.Attribute.String & Schema.Attribute.Private;
     localizations: Schema.Attribute.Relation<
       'oneToMany',
@@ -464,7 +470,12 @@ export interface ApiCategoryCategory extends Struct.CollectionTypeSchema {
     > &
       Schema.Attribute.Private;
     name: Schema.Attribute.String & Schema.Attribute.Required;
+    news_items: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::news-item.news-item'
+    >;
     ordering: Schema.Attribute.Integer & Schema.Attribute.DefaultTo<0>;
+    parent: Schema.Attribute.Relation<'oneToOne', 'api::category.category'>;
     publishedAt: Schema.Attribute.DateTime;
     updatedAt: Schema.Attribute.DateTime;
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
@@ -555,9 +566,9 @@ export interface ApiNewsItemNewsItem extends Struct.CollectionTypeSchema {
       Schema.Attribute.Private;
     featured: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<false>;
     fulltext: Schema.Attribute.RichText;
-    gallery: Schema.Attribute.Media<undefined, true>;
+    gallery: Schema.Attribute.Media<'images', true>;
     hits: Schema.Attribute.Integer & Schema.Attribute.DefaultTo<0>;
-    image: Schema.Attribute.Media;
+    image: Schema.Attribute.Media<'images'>;
     introtext: Schema.Attribute.Text;
     locale: Schema.Attribute.String & Schema.Attribute.Private;
     localizations: Schema.Attribute.Relation<
@@ -723,6 +734,35 @@ export interface ApiTagTag extends Struct.CollectionTypeSchema {
     name: Schema.Attribute.String &
       Schema.Attribute.Required &
       Schema.Attribute.Unique;
+    news_items: Schema.Attribute.Relation<
+      'manyToMany',
+      'api::news-item.news-item'
+    >;
+    publishedAt: Schema.Attribute.DateTime;
+    updatedAt: Schema.Attribute.DateTime;
+    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+  };
+}
+
+export interface ApiWerWer extends Struct.SingleTypeSchema {
+  collectionName: 'wers';
+  info: {
+    displayName: 'wer';
+    pluralName: 'wers';
+    singularName: 'wer';
+  };
+  options: {
+    draftAndPublish: true;
+  };
+  attributes: {
+    createdAt: Schema.Attribute.DateTime;
+    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    Head: Schema.Attribute.String;
+    locale: Schema.Attribute.String & Schema.Attribute.Private;
+    localizations: Schema.Attribute.Relation<'oneToMany', 'api::wer.wer'> &
+      Schema.Attribute.Private;
     publishedAt: Schema.Attribute.DateTime;
     updatedAt: Schema.Attribute.DateTime;
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
@@ -1250,6 +1290,7 @@ declare module '@strapi/strapi' {
       'api::sdo-site.sdo-site': ApiSdoSiteSdoSite;
       'api::site.site': ApiSiteSite;
       'api::tag.tag': ApiTagTag;
+      'api::wer.wer': ApiWerWer;
       'plugin::content-releases.release': PluginContentReleasesRelease;
       'plugin::content-releases.release-action': PluginContentReleasesReleaseAction;
       'plugin::i18n.locale': PluginI18NLocale;

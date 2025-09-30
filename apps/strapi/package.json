@@ -17,7 +17,8 @@
     "generate:schema": "node scripts/generate-schema.js",
     "create:structure": "node scripts/create-structure.js",
     "setup:news": "npm run create:structure && npm run generate:schema",
-    "import-news": "node scripts/import-news"
+    "import-news": "node scripts/import-news.js",
+    "diagnose": "node scripts/diagnose.js"
   },
   "dependencies": {
     "@avorati/strapi-provider-upload-minio": "^1.2.1",

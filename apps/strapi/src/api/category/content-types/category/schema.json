@@ -1,9 +1,9 @@
 {
   "kind": "collectionType",
-  "collectionName": "categorys",
+  "collectionName": "categories",
   "info": {
     "singularName": "category",
-    "pluralName": "categorys",
+    "pluralName": "categories",
     "displayName": "Category",
     "description": "Категории новостей"
   },
@@ -22,9 +22,27 @@
     "description": {
       "type": "text"
     },
+    "image": {
+      "type": "media",
+      "allowedTypes": [
+        "images"
+      ],
+      "multiple": false
+    },
     "ordering": {
       "type": "integer",
       "default": 0
+    },
+    "parent": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::category.category"
+    },
+    "news_items": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::news-item.news-item",
+      "mappedBy": "category"
     }
   }
 }

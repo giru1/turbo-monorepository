@@ -70,6 +70,13 @@ function createCategorySchema() {
                 type: 'relation',
                 relation: 'oneToOne',
                 target: 'api::category.category'
+            },
+            // ДОБАВЛЕНО: обратное отношение для news_items
+            news_items: {
+                type: 'relation',
+                relation: 'oneToMany',
+                target: 'api::news-item.news-item',
+                mappedBy: 'category'
             }
         }
     };
@@ -111,6 +118,13 @@ function createAuthorSchema() {
             },
             profile: {
                 type: 'json'
+            },
+            // ДОБАВЛЕНО: обратное отношение для news_items
+            news_items: {
+                type: 'relation',
+                relation: 'oneToMany',
+                target: 'api::news-item.news-item',
+                mappedBy: 'author'
             }
         }
     };
@@ -145,6 +159,13 @@ function createTagSchema() {
                 type: 'string',
                 required: true,
                 unique: true
+            },
+            // ДОБАВЛЕНО: обратное отношение для news_items
+            news_items: {
+                type: 'relation',
+                relation: 'manyToMany',
+                target: 'api::news-item.news-item',
+                mappedBy: 'tags'
             }
         }
     };

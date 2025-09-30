@@ -4,26 +4,6 @@ async function generateSchema() {
     try {
         console.log('🎯 Генерация структуры Strapi...');
 
-        // Создаем контент-типы программно
-        const componentSchemas = {
-            // Компонент для изображений
-            'shared.image': {
-                category: 'shared',
-                kind: 'component',
-                collectionName: 'components_shared_images',
-                info: {
-                    displayName: 'Image',
-                    icon: 'picture',
-                },
-                attributes: {
-                    url: { type: 'string' },
-                    caption: { type: 'string' },
-                    width: { type: 'integer' },
-                    height: { type: 'integer' },
-                },
-            },
-        };
-
         const contentTypes = {
             // Категория
             'api::category.category': {
@@ -47,6 +27,12 @@ async function generateSchema() {
                         relation: 'oneToOne',
                         target: 'api::category.category',
                     },
+                    news_items: {
+                        type: 'relation',
+                        relation: 'oneToMany',
+                        target: 'api::news-item.news-item',
+                        mappedBy: 'category'
+                    }
                 },
             },
 
@@ -65,6 +51,12 @@ async function generateSchema() {
                     name: { type: 'string', required: true },
                     avatar: { type: 'media', allowedTypes: ['images'], multiple: false },
                     profile: { type: 'json' },
+                    news_items: {
+                        type: 'relation',
+                        relation: 'oneToMany',
+                        target: 'api::news-item.news-item',
+                        mappedBy: 'author'
+                    }
                 },
             },
 
@@ -81,6 +73,12 @@ async function generateSchema() {
                 options: { draftAndPublish: false },
                 attributes: {
                     name: { type: 'string', required: true, unique: true },
+                    news_items: {
+                        type: 'relation',
+                        relation: 'manyToMany',
+                        target: 'api::news-item.news-item',
+                        mappedBy: 'tags'
+                    }
                 },
             },
 
@@ -122,7 +120,6 @@ async function generateSchema() {
                         relation: 'manyToMany',
                         target: 'api::tag.tag',
                         inversedBy: 'news_items',
-                        mappedBy: 'news_items',
                     },
 
                     // Медиа
@@ -133,7 +130,7 @@ async function generateSchema() {
         };
 
         console.log('✅ Схемы созданы. Теперь создадим файлы...');
-        return { components: componentSchemas, contentTypes };
+        return { contentTypes };
 
     } catch (error) {
         console.error('❌ Ошибка генерации схем:', error);

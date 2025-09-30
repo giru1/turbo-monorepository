@@ -1,0 +1,18 @@
+{
+  "kind": "singleType",
+  "collectionName": "wers",
+  "info": {
+    "singularName": "wer",
+    "pluralName": "wers",
+    "displayName": "wer"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "Head": {
+      "type": "string"
+    }
+  }
+}

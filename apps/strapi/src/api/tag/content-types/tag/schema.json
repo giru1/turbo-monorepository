@@ -15,6 +15,12 @@
       "type": "string",
       "required": true,
       "unique": true
+    },
+    "news_items": {
+      "type": "relation",
+      "relation": "manyToMany",
+      "target": "api::news-item.news-item",
+      "mappedBy": "tags"
     }
   }
 }
