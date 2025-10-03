@@ -10,7 +10,9 @@
   },
   "dependencies": {
     "@mui/icons-material": "^7.3.2",
+    "@mui/x-date-pickers": "^8.12.0",
     "@repo/ui": "workspace:*",
+    "date-fns": "^4.1.0",
     "next": "15.5.2",
     "react": "19.1.0",
     "react-dom": "19.1.0",

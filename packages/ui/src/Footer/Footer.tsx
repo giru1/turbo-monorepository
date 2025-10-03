@@ -23,10 +23,11 @@ export default function Footer({ footerData }: FooterProps) {
     }
 
     // Извлекаем данные из структуры
-    const address = footerData.addressData?.data?.footer_address;
-    const email = footerData.emailData?.data?.footer_email;
-    const phone = footerData.phoneData?.data?.footer_phone;
-    const phonePK = footerData.phonePKData?.data?.footer_phone_pk;
+    const address = footerData?.address;
+    const email = footerData?.email;
+    const phone = footerData?.phone;
+    const phonePK = footerData?.phonePK;
+
 
     // Для коллекции menu-footers извлекаем атрибуты каждого элемента
     const menuItems = footerData.menuData?.data || [];

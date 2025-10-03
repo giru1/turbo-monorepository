@@ -24,11 +24,11 @@
       }
     ],
     "paths": {
-      "@/*": [
-        "./src/*"
-      ],
+      "@/*": ["./src/*",],
       "@repo/ui": ["../../packages/ui/src"],
-      "@repo/ui/*": ["../../packages/ui/src/*"]
+      "@repo/ui/*": ["../../packages/ui/src/*"],
+      "@lib/*": ["lib/*"],
+      "@/components/*": ["./src/components/*"]
     }
   },
   "include": [

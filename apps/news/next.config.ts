@@ -7,8 +7,10 @@ const nextConfig = {
     },
     experimental: {
         externalDir: true, // ✅ Разрешаем импорт из внешних папок
+        missingSuspenseWithCSRBailout: false,
     },
     transpilePackages: ['@repo/ui'],
+
 }
 
 

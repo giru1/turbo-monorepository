@@ -1,106 +1,162 @@
 import NewsDetail from "../../../components/NewsDetail/NewsDetail";
 import { notFound } from "next/navigation";
-import { NewsItem, NewsSlug, Participant } from "@/types/news";
-import { Grid, Container, Box } from "@mui/material";
+import { NewsItem, Participant } from "@/types/news";
+import { Grid, Container } from "@mui/material";
 import NewsSidebar from "./components/NewsSidebar";
+import { strapiClient } from "@/lib/strapi-client";
 
 interface Props {
-    params: Promise<{ slug: NewsSlug }>;
+    params: Promise<{ slug: string }>;
 }
 
 export async function generateStaticParams() {
-    return [
-        { slug: 'portal-gosuslug' as NewsSlug },
-        { slug: 'cifrovaya-transformaciya' as NewsSlug },
-        { slug: 'centr-cifrovogo-razvitiya' as NewsSlug }
-    ];
+    try {
+        console.log('🔄 Генерация статических параметров для новостей...');
+
+        // Получаем все новости из Strapi
+        const newsResponse = await strapiClient.getNewsItemsSimple();
+        const news = newsResponse.data || [];
+
+        console.log('📝 Найдено новостей для статической генерации:', news.length);
+
+        // Возвращаем все slug'и для статической генерации
+        const params = news.map((item) => ({
+            slug: item.alias,
+        }));
+
+        console.log('✅ Сгенерированы параметры:', params);
+        return params;
+    } catch (error) {
+        console.error('❌ Ошибка при получении slug для статической генерации:', error);
+        return [];
+    }
 }
 
 export default async function NewsPage({ params }: Props) {
     const { slug } = await params;
 
-    const newsData: Record<NewsSlug, NewsItem> = {
-        'portal-gosuslug': {
-            title: "Запустили новый портал госуслуг",
-            desc: "Сегодня был запущен обновленный портал госуслуг. Теперь жители региона могут получать услуги быстрее и удобнее. Система была полностью переработана для улучшения пользовательского опыта.",
-            date: "18 сентября 2025",
-            tags: ["новости", "портал", "госуслуг"],
-            images: [
-                "http://localhost:9000/assets.orgma.ru/pic2_2_282dc010f2.png",
-                "http://localhost:9000/assets.orgma.ru/pic2_2_2c7257fb6c.png",
-                "http://localhost:9000/assets.orgma.ru/pic2_2_282dc010f2.png"
-            ],
-            participants: [
-                { id: "1", name: "Иванов Иван", role: "Руководитель проекта", link: "/participants/1" },
-                { id: "2", name: "Петрова Анна", role: "Разработчик", link: "/participants/2" },
-                { id: "3", name: "Сидоров Алексей", role: "Дизайнер", link: "/participants/3" }
-            ]
-        },
-        'cifrovaya-transformaciya': {
-            title: "В регионе стартует цифровая трансформация",
-            desc: "Программа цифровой трансформации включает в себя автоматизацию муниципальных услуг, внедрение электронного документооборота и создание единой цифровой платформы для взаимодействия с гражданами.",
-            date: "15 сентября 2025",
-            tags: ["новости", "цифровая", "трансформация"],
-            images: [
-                "http://localhost:9000/assets.orgma.ru/pic2_2_2c7257fb6c.png",
-                "http://localhost:9000/assets.orgma.ru/pic2_2_282dc010f2.png"
-            ],
-            participants: [
-                { id: "4", name: "Кузнецов Дмитрий", role: "Министр цифрового развития", link: "/participants/4" },
-                { id: "5", name: "Федорова Мария", role: "Координатор проекта", link: "/participants/5" }
-            ]
-        },
-        'centr-cifrovogo-razvitiya': {
-            title: "Открытие центра цифрового развития",
-            desc: "Новый центр цифрового развития будет заниматься поддержкой IT-проектов, обучением цифровым навыкам и внедрением инновационных технологий в государственном секторе.",
-            date: "10 сентября 2025",
-            tags: ["новости", "центр", "цифрового", "развития"],
-            images: [
-                "http://localhost:9000/assets.orgma.ru/pic2_2_282dc010f2.png",
-                "http://localhost:9000/assets.orgma.ru/pic2_2_2c7257fb6c.png",
-                "http://localhost:9000/assets.orgma.ru/pic2_2_282dc010f2.png",
-                "http://localhost:9000/assets.orgma.ru/pic2_2_2c7257fb6c.png"
-            ],
-            participants: [
-                { id: "6", name: "Васильев Сергей", role: "Директор центра", link: "/participants/6" },
-                { id: "7", name: "Николаева Ольга", role: "IT-специалист", link: "/participants/7" },
-                { id: "8", name: "Алексеев Павел", role: "Менеджер проектов", link: "/participants/8" }
-            ]
+    console.log('🔄 Загрузка новости по slug:', slug);
+
+    try {
+        // Получаем данные конкретной новости по slug
+        const newsResponse = await strapiClient.getNewsBySlug(slug);
+        console.log('📄 Ответ от Strapi:', newsResponse);
+
+        const newsItem = newsResponse.data?.[0];
+
+        if (!newsItem) {
+            console.log('❌ Новость не найдена для slug:', slug);
+            notFound();
         }
-    };
 
-    const newsItem = newsData[slug];
+        console.log('✅ Найдена новость:', newsItem.title);
 
-    if (!newsItem) {
+        // Форматируем данные для компонента
+        const formattedNewsItem: NewsItem = {
+            title: newsItem.title,
+            desc: newsItem.introtext + (newsItem.fulltext ? `\n\n${newsItem.fulltext}` : ''),
+            date: new Date(newsItem.created).toLocaleDateString('ru-RU', {
+                day: 'numeric',
+                month: 'long',
+                year: 'numeric'
+            }),
+            tags: newsItem.tags?.map(tag => tag.name) || [],
+            images: getNewsImages(newsItem),
+            participants: getParticipants(newsItem),
+            category: newsItem.category?.name || 'Без категории',
+            hits: newsItem.hits || 0
+        };
+
+        return (
+            <Container maxWidth="xl" sx={{ py: 4 }}>
+                <Grid container spacing={4}>
+                    <Grid size={{xs: 12, md: 4}}>
+                        <NewsSidebar
+                            participants={formattedNewsItem.participants}
+                            date={formattedNewsItem.date}
+                            tags={formattedNewsItem.tags}
+                            currentSlug={slug}
+                            category={formattedNewsItem.category}
+                            hits={formattedNewsItem.hits}
+                        />
+                    </Grid>
+                    <Grid size={{xs: 12, md: 8}}>
+                        <NewsDetail
+                            title={formattedNewsItem.title}
+                            desc={formattedNewsItem.desc}
+                            date={formattedNewsItem.date}
+                            tags={formattedNewsItem.tags}
+                            images={formattedNewsItem.images}
+                            participants={formattedNewsItem.participants}
+                            category={formattedNewsItem.category}
+                            hits={formattedNewsItem.hits}
+                        />
+                    </Grid>
+                </Grid>
+            </Container>
+        );
+
+    } catch (error) {
+        console.error('❌ Ошибка загрузки новости:', error);
         notFound();
     }
+}
 
-    return (
-        <Container maxWidth="xl" sx={{ py: 4 }}>
-            <Grid container spacing={4}>
-                {/* Боковая панель - 4 колонки */}
-                <Grid size={{xs: 12, md: 4}}>
-                    <NewsSidebar
-                        participants={newsItem.participants}
-                        date={newsItem.date}
-                        tags={newsItem.tags}
-                        currentSlug={slug}
-                    />
-                </Grid>
-                {/* Основной контент - 8 колонок */}
-                <Grid size={{xs: 12, md: 8}}>
-                    <NewsDetail
-                        title={newsItem.title}
-                        desc={newsItem.desc}
-                        date={newsItem.date}
-                        tags={newsItem.tags}
-                        images={newsItem.images}
-                        participants={newsItem.participants}
-                    />
-                </Grid>
+// Вспомогательные функции
+function getNewsImages(newsItem: any): string[] {
+    const images: string[] = [];
+    const defaultImage = "http://localhost:9000/assets.orgma.ru/pic2_2_2c7257fb6c.png";
 
+    console.log('🖼️ Поиск изображений для новости:', newsItem.title);
+    console.log('📸 Главное изображение:', newsItem.image);
+    console.log('🖼️ Галерея:', newsItem.gallery);
 
-            </Grid>
-        </Container>
-    );
+    // Главное изображение
+    if (newsItem.image?.url) {
+        const imageUrl = `http://localhost:1337${newsItem.image.url}`;
+        images.push(imageUrl);
+        console.log('✅ Добавлено главное изображение:', imageUrl);
+    }
+
+    // Изображения из галереи
+    if (newsItem.gallery && Array.isArray(newsItem.gallery)) {
+        newsItem.gallery.forEach((img: any) => {
+            if (img.url) {
+                const imageUrl = `http://localhost:1337${img.url}`;
+                images.push(imageUrl);
+                console.log('✅ Добавлено изображение из галереи:', imageUrl);
+            }
+        });
+    }
+
+    // Если нет изображений, используем дефолтное
+    if (images.length === 0) {
+        images.push(defaultImage);
+        console.log('🖼️ Используется изображение по умолчанию');
+    }
+
+    console.log('🎨 Всего изображений:', images.length);
+    return images;
+}
+
+function getParticipants(newsItem: any): Participant[] {
+    const participants: Participant[] = [];
+
+    console.log('👥 Поиск участников для новости:', newsItem.title);
+    console.log('✍️ Автор:', newsItem.author);
+
+    if (newsItem.author) {
+        participants.push({
+            id: newsItem.author.id.toString(),
+            name: newsItem.author.name,
+            role: 'Автор',
+            link: `/participants/${newsItem.author.id}`,
+            avatar: newsItem.author.profile?.url ?
+                `http://localhost:1337${newsItem.author.profile.url}` : null
+        });
+        console.log('✅ Добавлен автор:', newsItem.author.name);
+    }
+
+    console.log('👥 Всего участников:', participants.length);
+    return participants;
 }

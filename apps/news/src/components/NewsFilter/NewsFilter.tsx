@@ -1,258 +1,348 @@
-'use client';
-import { Grid, Chip, Box, Typography, Card, CardContent, FormControl, InputLabel, Select, MenuItem, Checkbox, ListItemText, Button } from '@mui/material';
-import { useState } from 'react';
-
-interface Participant {
-    id: string;
-    name: string;
-    role: string;
-    link: string;
-}
+// src/components/NewsFilter/NewsFilter.tsx
+import React, { useState } from 'react';
+import {
+    Box,
+    Typography,
+    FormControl,
+    InputLabel,
+    Select,
+    MenuItem,
+    Chip,
+    OutlinedInput,
+    SelectChangeEvent,
+    Button,
+    Popover
+} from '@mui/material';
+import { DatePicker } from '@mui/x-date-pickers/DatePicker';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
+import { ru } from 'date-fns/locale';
+import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
 
 interface NewsFilterProps {
     onFilterChange: (filters: {
-        tags: string[];
-        date: string | null;
-        participants: string[];
+        category?: string;
+        tag?: string;
+        author?: string;
+        date?: string;
+        dateRange?: { start: Date | null; end: Date | null };
     }) => void;
-    allParticipants: Participant[];
+    categories: any[];
+    availableTags: string[];
+    availableAuthors: string[];
     availableDates: string[];
+    currentFilters: {
+        category: string;
+        tag: string;
+        author: string;
+        date: string;
+    };
 }
 
-const newsTags = [
-    'Все новости',
-    'Новости',
-    'События',
-    'Поздравления',
-    'Новости подразделений',
-    'Акции',
-    'Объявления'
-];
+const NewsFilter: React.FC<NewsFilterProps> = ({
+                                                   onFilterChange,
+                                                   categories,
+                                                   availableTags,
+                                                   availableAuthors,
+                                                   availableDates,
+                                                   currentFilters
+                                               }) => {
+    const [dateRange, setDateRange] = useState<{ start: Date | null; end: Date | null }>({
+        start: null,
+        end: null
+    });
+    const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
 
-export default function NewsFilter({ onFilterChange, allParticipants, availableDates }: NewsFilterProps) {
-    const [selectedTags, setSelectedTags] = useState<string[]>(['Все новости']);
-    const [selectedDate, setSelectedDate] = useState<string>('');
-    const [selectedParticipants, setSelectedParticipants] = useState<string[]>([]);
+    const handleCategoryChange = (event: SelectChangeEvent<string>) => {
+        onFilterChange({
+            ...currentFilters,
+            category: event.target.value,
+            dateRange: dateRange.start && dateRange.end ? dateRange : undefined
+        });
+    };
 
-    const handleTagClick = (tag: string) => {
-        let newSelectedTags: string[];
+    const handleTagChange = (event: SelectChangeEvent<string>) => {
+        onFilterChange({
+            ...currentFilters,
+            tag: event.target.value,
+            dateRange: dateRange.start && dateRange.end ? dateRange : undefined
+        });
+    };
 
-        if (tag === 'Все новости') {
-            newSelectedTags = ['Все новости'];
-            setSelectedDate('');
-            setSelectedParticipants([]);
-        } else {
-            if (selectedTags.includes('Все новости')) {
-                newSelectedTags = [tag];
-            } else if (selectedTags.includes(tag)) {
-                newSelectedTags = selectedTags.filter(t => t !== tag);
-                if (newSelectedTags.length === 0) {
-                    newSelectedTags = ['Все новости'];
-                }
-            } else {
-                newSelectedTags = [...selectedTags, tag];
-            }
+    const handleAuthorChange = (event: SelectChangeEvent<string>) => {
+        onFilterChange({
+            ...currentFilters,
+            author: event.target.value,
+            dateRange: dateRange.start && dateRange.end ? dateRange : undefined
+        });
+    };
+
+    const handleDateRangeChange = (type: 'start' | 'end', value: Date | null) => {
+        const newDateRange = {
+            ...dateRange,
+            [type]: value
+        };
+        setDateRange(newDateRange);
+
+        // Если обе даты выбраны, применяем фильтр
+        if (newDateRange.start && newDateRange.end) {
+            onFilterChange({
+                ...currentFilters,
+                date: '', // Очищаем старый фильтр по дате
+                dateRange: newDateRange
+            });
         }
-
-        setSelectedTags(newSelectedTags);
-        applyFilters(newSelectedTags, selectedDate, selectedParticipants);
     };
 
-    const handleDateChange = (date: string) => {
-        const newDate = date === '' ? null : date;
-        setSelectedDate(date);
-        setSelectedTags(['Все новости']);
-        setSelectedParticipants([]);
-        applyFilters(['Все новости'], newDate, []);
+    const handleCalendarOpen = (event: React.MouseEvent<HTMLButtonElement>) => {
+        setAnchorEl(event.currentTarget);
     };
 
-    const handleParticipantChange = (participantIds: string[]) => {
-        setSelectedParticipants(participantIds);
-        setSelectedTags(['Все новости']);
-        setSelectedDate('');
-        applyFilters(['Все новости'], null, participantIds);
+    const handleCalendarClose = () => {
+        setAnchorEl(null);
     };
 
-    const applyFilters = (tags: string[], date: string | null, participants: string[]) => {
+    const clearDateRange = () => {
+        setDateRange({ start: null, end: null });
         onFilterChange({
-            tags: tags.includes('Все новости') ? [] : tags,
-            date,
-            participants
+            ...currentFilters,
+            date: '',
+            dateRange: undefined
         });
     };
 
-    const clearAllFilters = () => {
-        setSelectedTags(['Все новости']);
-        setSelectedDate('');
-        setSelectedParticipants([]);
-        onFilterChange({
-            tags: [],
-            date: null,
-            participants: []
-        });
+    const formatDateRangeDisplay = () => {
+        if (dateRange.start && dateRange.end) {
+            return `${dateRange.start.toLocaleDateString('ru-RU')} - ${dateRange.end.toLocaleDateString('ru-RU')}`;
+        }
+        return 'Выберите период';
     };
+
+    const open = Boolean(anchorEl);
+    const id = open ? 'date-range-popover' : undefined;
 
     return (
-        <Box sx={{ mb: 4 }}>
-            <Typography
-                variant="h6"
-                sx={{
-                    mb: 2,
-                    fontWeight: 600,
-                    color: 'text.primary',
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center'
-                }}
-            >
-                Фильтр новостей
-                {(selectedDate || selectedParticipants.length > 0 || (selectedTags.length > 0 && !selectedTags.includes('Все новости'))) && (
-                    <Button
-                        size="small"
-                        onClick={clearAllFilters}
-                        sx={{ fontSize: '0.75rem' }}
-                    >
-                        Сбросить
-                    </Button>
-                )}
-            </Typography>
+        <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={ru}>
+            <Box sx={{ p: 2, bgcolor: 'background.paper', borderRadius: 1 }}>
+                <Typography variant="h6" gutterBottom>
+                    Фильтры
+                </Typography>
 
-            {/* Фильтр по тегам */}
-            <Card sx={{ mb: 3 }}>
-                <CardContent>
-                    <Typography variant="subtitle1" gutterBottom sx={{ fontWeight: 600 }}>
-                        По тегам
-                    </Typography>
-                    <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
-                        {newsTags.map((tag) => (
-                            <Chip
-                                key={tag}
-                                label={tag}
-                                clickable
-                                variant={selectedTags.includes(tag) ? 'filled' : 'outlined'}
-                                color={selectedTags.includes(tag) ? 'primary' : 'default'}
-                                onClick={() => handleTagClick(tag)}
-                                sx={{
-                                    fontWeight: selectedTags.includes(tag) ? 600 : 400,
-                                    transition: 'all 0.2s ease-in-out',
-                                    '&:hover': {
-                                        transform: 'translateY(-1px)',
-                                        boxShadow: 2
+                {/* Категория */}
+                <FormControl fullWidth sx={{ mb: 2 }}>
+                    <InputLabel>Категория</InputLabel>
+                    <Select
+                        value={currentFilters.category}
+                        onChange={handleCategoryChange}
+                        input={<OutlinedInput label="Категория" />}
+                    >
+                        <MenuItem value="">Все категории</MenuItem>
+                        {categories
+                            .filter(category => category?.alias)
+                            .map((category) => (
+                                <MenuItem key={category.id} value={category.alias}>
+                                    {category.name}
+                                </MenuItem>
+                            ))}
+                    </Select>
+                </FormControl>
+
+                {/* Теги */}
+                <FormControl fullWidth sx={{ mb: 2 }}>
+                    <InputLabel>Тег</InputLabel>
+                    <Select
+                        value={currentFilters.tag}
+                        onChange={handleTagChange}
+                        input={<OutlinedInput label="Тег" />}
+                    >
+                        <MenuItem value="">Все теги</MenuItem>
+                        {availableTags.map((tag) => (
+                            <MenuItem key={tag} value={tag}>
+                                {tag}
+                            </MenuItem>
+                        ))}
+                    </Select>
+                </FormControl>
+
+                {/* Автор */}
+                <FormControl fullWidth sx={{ mb: 2 }}>
+                    <InputLabel>Автор</InputLabel>
+                    <Select
+                        value={currentFilters.author}
+                        onChange={handleAuthorChange}
+                        input={<OutlinedInput label="Автор" />}
+                    >
+                        <MenuItem value="">Все авторы</MenuItem>
+                        {availableAuthors.map((author) => (
+                            <MenuItem key={author} value={author}>
+                                {author}
+                            </MenuItem>
+                        ))}
+                    </Select>
+                </FormControl>
+
+                {/* Календарь с диапазоном дат */}
+                <Box sx={{ mb: 2 }}>
+                    <Button
+                        variant="outlined"
+                        fullWidth
+                        startIcon={<CalendarTodayIcon />}
+                        onClick={handleCalendarOpen}
+                        aria-describedby={id}
+                    >
+                        {formatDateRangeDisplay()}
+                    </Button>
+
+                    {dateRange.start && dateRange.end && (
+                        <Button
+                            size="small"
+                            onClick={clearDateRange}
+                            sx={{ mt: 1 }}
+                        >
+                            Очистить даты
+                        </Button>
+                    )}
+
+                    <Popover
+                        id={id}
+                        open={open}
+                        anchorEl={anchorEl}
+                        onClose={handleCalendarClose}
+                        anchorOrigin={{
+                            vertical: 'bottom',
+                            horizontal: 'left',
+                        }}
+                    >
+                        <Box sx={{ p: 2, minWidth: 300 }}>
+                            <Typography variant="subtitle1" gutterBottom>
+                                Выберите период
+                            </Typography>
+
+                            <DatePicker
+                                label="Начальная дата"
+                                value={dateRange.start}
+                                onChange={(date) => handleDateRangeChange('start', date)}
+                                slotProps={{
+                                    textField: {
+                                        fullWidth: true,
+                                        margin: 'normal'
                                     }
                                 }}
                             />
-                        ))}
-                    </Box>
-                </CardContent>
-            </Card>
 
-            {/* Фильтр по дате */}
-            <Card sx={{ mb: 3 }}>
-                <CardContent>
-                    <Typography variant="subtitle1" gutterBottom sx={{ fontWeight: 600 }}>
-                        По дате
-                    </Typography>
-                    <FormControl fullWidth size="small">
-                        <InputLabel>Выберите дату</InputLabel>
-                        <Select
-                            value={selectedDate}
-                            label="Выберите дату"
-                            onChange={(e) => handleDateChange(e.target.value)}
-                        >
-                            <MenuItem value="">
-                                <em>Все даты</em>
-                            </MenuItem>
-                            {availableDates.map((date) => (
-                                <MenuItem key={date} value={date}>
-                                    {date}
-                                </MenuItem>
-                            ))}
-                        </Select>
-                    </FormControl>
-                </CardContent>
-            </Card>
+                            <DatePicker
+                                label="Конечная дата"
+                                value={dateRange.end}
+                                onChange={(date) => handleDateRangeChange('end', date)}
+                                slotProps={{
+                                    textField: {
+                                        fullWidth: true,
+                                        margin: 'normal'
+                                    }
+                                }}
+                            />
 
-            {/* Фильтр по участникам */}
-            <Card sx={{ mb: 3 }}>
-                <CardContent>
-                    <Typography variant="subtitle1" gutterBottom sx={{ fontWeight: 600 }}>
-                        По участникам
-                    </Typography>
-                    <FormControl fullWidth size="small">
-                        <InputLabel>Выберите участников</InputLabel>
-                        <Select
-                            multiple
-                            value={selectedParticipants}
-                            onChange={(e) => handleParticipantChange(e.target.value as string[])}
-                            renderValue={(selected) => (
-                                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
-                                    {selected.map((participantId) => {
-                                        const participant = allParticipants.find(p => p.id === participantId);
-                                        return participant ? (
-                                            <Chip
-                                                key={participantId}
-                                                label={participant.name}
-                                                size="small"
-                                            />
-                                        ) : null;
-                                    })}
-                                </Box>
-                            )}
-                        >
-                            {allParticipants.map((participant) => (
-                                <MenuItem key={participant.id} value={participant.id}>
-                                    <Checkbox checked={selectedParticipants.indexOf(participant.id) > -1} />
-                                    <ListItemText
-                                        primary={participant.name}
-                                        secondary={participant.role}
-                                    />
-                                </MenuItem>
-                            ))}
-                        </Select>
-                    </FormControl>
-                </CardContent>
-            </Card>
+                            <Box sx={{ mt: 2, display: 'flex', gap: 1 }}>
+                                <Button
+                                    variant="outlined"
+                                    fullWidth
+                                    onClick={() => {
+                                        const today = new Date();
+                                        const weekAgo = new Date();
+                                        weekAgo.setDate(today.getDate() - 7);
+                                        setDateRange({ start: weekAgo, end: today });
+                                    }}
+                                >
+                                    Неделя
+                                </Button>
 
-            {/* Активные фильтры */}
-            {(selectedDate || selectedParticipants.length > 0 || (selectedTags.length > 0 && !selectedTags.includes('Все новости'))) && (
-                <Card sx={{ mb: 2 }}>
-                    <CardContent>
-                        <Typography variant="subtitle2" gutterBottom sx={{ fontWeight: 600 }}>
-                            Активные фильтры:
-                        </Typography>
-                        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
-                            {selectedTags.filter(tag => tag !== 'Все новости').map((tag) => (
-                                <Chip
-                                    key={tag}
-                                    label={`Тег: ${tag}`}
-                                    size="small"
-                                    onDelete={() => handleTagClick(tag)}
-                                />
-                            ))}
-                            {selectedDate && (
-                                <Chip
-                                    label={`Дата: ${selectedDate}`}
-                                    size="small"
-                                    onDelete={() => handleDateChange('')}
-                                />
-                            )}
-                            {selectedParticipants.map((participantId) => {
-                                const participant = allParticipants.find(p => p.id === participantId);
-                                return participant ? (
-                                    <Chip
-                                        key={participantId}
-                                        label={`Участник: ${participant.name}`}
-                                        size="small"
-                                        onDelete={() => handleParticipantChange(
-                                            selectedParticipants.filter(id => id !== participantId)
-                                        )}
-                                    />
-                                ) : null;
-                            })}
+                                <Button
+                                    variant="outlined"
+                                    fullWidth
+                                    onClick={() => {
+                                        const today = new Date();
+                                        const monthAgo = new Date();
+                                        monthAgo.setMonth(today.getMonth() - 1);
+                                        setDateRange({ start: monthAgo, end: today });
+                                    }}
+                                >
+                                    Месяц
+                                </Button>
+                            </Box>
                         </Box>
-                    </CardContent>
-                </Card>
-            )}
-        </Box>
+                    </Popover>
+                </Box>
+
+                {/* Быстрые фильтры по датам (опционально) */}
+                <FormControl fullWidth sx={{ mb: 2 }}>
+                    <InputLabel>Быстрые даты</InputLabel>
+                    <Select
+                        value={currentFilters.date}
+                        onChange={(e) => {
+                            onFilterChange({
+                                ...currentFilters,
+                                date: e.target.value,
+                                dateRange: undefined
+                            });
+                            setDateRange({ start: null, end: null }); // Очищаем диапазон
+                        }}
+                        input={<OutlinedInput label="Быстрые даты" />}
+                    >
+                        <MenuItem value="">Все даты</MenuItem>
+                        {availableDates.map((date) => (
+                            <MenuItem key={date} value={date}>
+                                {date}
+                            </MenuItem>
+                        ))}
+                    </Select>
+                </FormControl>
+
+                {/* Отображение активных фильтров */}
+                <Box sx={{ mt: 2 }}>
+                    <Typography variant="subtitle2" gutterBottom>
+                        Активные фильтры:
+                    </Typography>
+                    <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                        {currentFilters.category && (
+                            <Chip
+                                label={`Категория: ${categories.find(c => c.alias === currentFilters.category)?.name}`}
+                                onDelete={() => onFilterChange({ ...currentFilters, category: '' })}
+                                size="small"
+                            />
+                        )}
+                        {currentFilters.tag && (
+                            <Chip
+                                label={`Тег: ${currentFilters.tag}`}
+                                onDelete={() => onFilterChange({ ...currentFilters, tag: '' })}
+                                size="small"
+                            />
+                        )}
+                        {currentFilters.author && (
+                            <Chip
+                                label={`Автор: ${currentFilters.author}`}
+                                onDelete={() => onFilterChange({ ...currentFilters, author: '' })}
+                                size="small"
+                            />
+                        )}
+                        {dateRange.start && dateRange.end && (
+                            <Chip
+                                label={`Период: ${formatDateRangeDisplay()}`}
+                                onDelete={clearDateRange}
+                                size="small"
+                            />
+                        )}
+                        {currentFilters.date && !dateRange.start && !dateRange.end && (
+                            <Chip
+                                label={`Дата: ${currentFilters.date}`}
+                                onDelete={() => onFilterChange({ ...currentFilters, date: '' })}
+                                size="small"
+                            />
+                        )}
+                    </Box>
+                </Box>
+            </Box>
+        </LocalizationProvider>
     );
-}
+};
+
+export default NewsFilter;

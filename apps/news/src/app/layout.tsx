@@ -39,6 +39,7 @@ export default async function RootLayout({children}: Readonly<{ children: React.
           </header>
         </Container>
 
+
         {children}
         <Footer footerData={footerData} />
       </div>
