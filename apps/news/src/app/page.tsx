@@ -17,6 +17,7 @@ interface StrapiNewsItem {
   hits: number;
   featured: boolean;
   image: any | null;
+  imageurl: any | null;
   gallery: any | null;
   category: {
     id: number;
@@ -35,8 +36,7 @@ export default function NewsListPage() {
   const searchParams = useSearchParams();
   const router = useRouter();
 
-  const participant = searchParams.get('participant');
-  const date = searchParams.get('date');
+  const author = searchParams.get('author');
   const tag = searchParams.get('tag');
   const category = searchParams.get('category');
 
@@ -58,6 +58,7 @@ export default function NewsListPage() {
         setNews(newsResponse.data || []);
         setFilteredNews(newsResponse.data || []);
 
+
         // Загружаем категории
         const categoriesResponse = await strapiClient.getCategories();
         console.log('📂 Загружено категорий:', categoriesResponse.data?.length);
@@ -69,6 +70,7 @@ export default function NewsListPage() {
       } finally {
         setLoading(false);
       }
+      console.log(filteredNews, "filteredNews1111111111111111111111111");
     }
 
     loadData();
@@ -91,16 +93,8 @@ export default function NewsListPage() {
     }
 
     // Фильтрация по автору
-    if (participant) {
-      filtered = filtered.filter(item => item.author?.name === participant);
-    }
-
-    // Фильтрация по одиночной дате
-    if (date && !startDate && !endDate) {
-      filtered = filtered.filter(item => {
-        const itemDate = new Date(item.created).toLocaleDateString('ru-RU');
-        return itemDate === date;
-      });
+    if (author) {
+      filtered = filtered.filter(item => item.author?.name === author);
     }
 
     // Фильтрация по диапазону дат
@@ -119,28 +113,25 @@ export default function NewsListPage() {
 
     console.log('✅ После фильтрации осталось новостей:', filtered.length);
     setFilteredNews(filtered);
-  }, [category, tag, participant, date, searchParams, news]);
+  }, [category, tag, author, searchParams, news]);
 
   // Обработчик изменения фильтров
   const handleFilterChange = (filters: {
     category?: string;
     tag?: string;
     author?: string;
-    date?: string;
     dateRange?: { start: Date | null; end: Date | null };
   }) => {
     const params = new URLSearchParams();
 
     if (filters.category) params.set('category', filters.category);
     if (filters.tag) params.set('tag', filters.tag);
-    if (filters.author) params.set('participant', filters.author);
-    if (filters.date) params.set('date', filters.date);
+    if (filters.author) params.set('author', filters.author);
 
     // Для диапазона дат сохраняем в URL как startDate и endDate
     if (filters.dateRange?.start && filters.dateRange?.end) {
       params.set('startDate', filters.dateRange.start.toISOString());
       params.set('endDate', filters.dateRange.end.toISOString());
-      params.delete('date'); // Удаляем одиночную дату если выбран диапазон
     }
 
     router.push(`?${params.toString()}`, { scroll: false });
@@ -148,24 +139,26 @@ export default function NewsListPage() {
 
   // Получение URL изображения
   const getNewsImage = (item: StrapiNewsItem) => {
-    const defaultImage = "http://localhost:9000/assets.orgma.ru/pic2_2_2c7257fb6c.png";
-
+    // const defaultImage = "http://localhost:9000/assets.orgma.ru/pic2_2_2c7257fb6c.png";
+    const defaultImage = item;
+  console.log(item, "gfgfd");
     // Проверяем главное изображение
-    if (item.image?.url) {
-      const imageUrl = `http://localhost:1337${item.image.url}`;
-      console.log('🖼️ Используется главное изображение:', imageUrl);
-      return imageUrl;
-    }
+    // if (item.imageurl?.url) {
+    //   const imageUrl = `http://localhost:1337${item.imageurl.url}`;
+    //   console.log('🖼️ Используется главное изображение:', imageUrl);
+    //   return imageUrl;
+    // }
 
     // Проверяем галерею
     if (item.gallery && Array.isArray(item.gallery) && item.gallery.length > 0 && item.gallery[0]?.url) {
-      const imageUrl = `http://localhost:1337${item.gallery[0].url}`;
+      const imageUrl = item.gallery[0].url;
       console.log('🖼️ Используется изображение из галереи:', imageUrl);
+      console.log(imageUrl, "5555");
       return imageUrl;
     }
 
     console.log('🖼️ Используется изображение по умолчанию');
-    return defaultImage;
+    return item;
   };
 
 // Получение тегов
@@ -247,14 +240,13 @@ export default function NewsListPage() {
           </Typography>
         </Box>
 
-        {(category || tag || participant || date) && (
+        {(category || tag || author) && (
             <Box sx={{ mb: 3 }}>
               <Typography variant="h5">
                 Фильтр:
                 {category && ` Категория: ${category}`}
                 {tag && ` Тег: ${tag}`}
-                {participant && ` Автор: ${participant}`}
-                {date && ` Дата: ${date}`}
+                {author && ` Автор: ${author}`}
               </Typography>
             </Box>
         )}
@@ -275,8 +267,7 @@ export default function NewsListPage() {
                     currentFilters={{
                       category: category || '',
                       tag: tag || '',
-                      author: participant || '',
-                      date: date || ''
+                      author: author || '',
                     }}
                 />
               </div>
@@ -303,7 +294,7 @@ export default function NewsListPage() {
                                 descSmall={item.introtext}
                                 date={formatDate(item.created)}
                                 link={`/news/${item.alias}`}
-                                img={getNewsImage(item)}
+                                img={getNewsImage(item.imageurl)}
                                 tags={getNewsTags(item)}
                             />
                         );

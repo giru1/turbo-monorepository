@@ -1,28 +1,28 @@
 'use client';
 import { Box, Typography, Chip, Card, CardContent, Link } from '@mui/material';
-import { Participant } from '@/types/news';
+import { Author } from '@/types/news';
 
 interface NewsSidebarProps {
-    participants: Participant[];
+    authors: Author[];
     date: string;
     tags: string[];
     currentSlug: string;
 }
 
-export default function NewsSidebar({ participants, date, tags, currentSlug }: NewsSidebarProps) {
-    const handleParticipantClick = (participantId: string) => {
+export default function NewsSidebar({ authors, date, tags, currentSlug }: NewsSidebarProps) {
+    const handleParticipantClick = (authorId: string) => {
         // Переход на страницу с новостями по участнику
-        window.location.href = `/news?participant=${participantId}`;
+        window.location.href = `?author=${authorId}`;
     };
 
     const handleDateClick = () => {
         // Переход на страницу с новостями за эту дату
-        window.location.href = `/news?date=${encodeURIComponent(date)}`;
+        window.location.href = `?date=${encodeURIComponent(date)}`;
     };
 
     const handleTagClick = (tag: string) => {
         // Переход на страницу с новостями по тегу
-        window.location.href = `/news?tag=${encodeURIComponent(tag)}`;
+        window.location.href = `?tag=${encodeURIComponent(tag)}`;
     };
 
     return (
@@ -34,13 +34,13 @@ export default function NewsSidebar({ participants, date, tags, currentSlug }: N
                         Участники новости
                     </Typography>
                     <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
-                        {participants.map((participant) => (
+                        {authors.map((author) => (
                             <Chip
-                                key={participant.id}
-                                label={participant.name}
+                                key={author.id}
+                                label={author.name}
                                 variant="outlined"
                                 clickable
-                                onClick={() => handleParticipantClick(participant.id)}
+                                onClick={() => handleParticipantClick(author.name)}
                                 sx={{ mb: 1 }}
                             />
                         ))}

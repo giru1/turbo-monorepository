@@ -35,7 +35,6 @@ interface NewsFilterProps {
         category: string;
         tag: string;
         author: string;
-        date: string;
     };
 }
 
@@ -272,30 +271,6 @@ const NewsFilter: React.FC<NewsFilterProps> = ({
                         </Box>
                     </Popover>
                 </Box>
-
-                {/* Быстрые фильтры по датам (опционально) */}
-                <FormControl fullWidth sx={{ mb: 2 }}>
-                    <InputLabel>Быстрые даты</InputLabel>
-                    <Select
-                        value={currentFilters.date}
-                        onChange={(e) => {
-                            onFilterChange({
-                                ...currentFilters,
-                                date: e.target.value,
-                                dateRange: undefined
-                            });
-                            setDateRange({ start: null, end: null }); // Очищаем диапазон
-                        }}
-                        input={<OutlinedInput label="Быстрые даты" />}
-                    >
-                        <MenuItem value="">Все даты</MenuItem>
-                        {availableDates.map((date) => (
-                            <MenuItem key={date} value={date}>
-                                {date}
-                            </MenuItem>
-                        ))}
-                    </Select>
-                </FormControl>
 
                 {/* Отображение активных фильтров */}
                 <Box sx={{ mt: 2 }}>

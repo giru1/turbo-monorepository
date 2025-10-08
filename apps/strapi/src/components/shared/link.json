@@ -1,14 +1,14 @@
 {
-  "collectionName": "components_shared_ssylka",
+  "collectionName": "components_shared_links",
   "info": {
     "displayName": "Link"
   },
   "options": {},
   "attributes": {
-    "Title": {
+    "title": {
       "type": "string"
     },
-    "Link": {
+    "link": {
       "type": "string"
     }
   },

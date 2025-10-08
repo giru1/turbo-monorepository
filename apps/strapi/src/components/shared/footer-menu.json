@@ -1,11 +1,11 @@
 {
-  "collectionName": "components_shared_sidebars",
+  "collectionName": "components_shared_footer_menus",
   "info": {
-    "displayName": "Sidebar"
+    "displayName": "FooterMenu"
   },
   "options": {},
   "attributes": {
-    "Link": {
+    "link": {
       "type": "component",
       "component": "shared.link",
       "repeatable": true

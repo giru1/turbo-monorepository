@@ -10,6 +10,7 @@
   "options": {
     "draftAndPublish": true
   },
+  "pluginOptions": {},
   "attributes": {
     "title": {
       "type": "string",
@@ -56,17 +57,20 @@
     },
     "image": {
       "type": "media",
+      "multiple": false,
       "allowedTypes": [
         "images"
-      ],
-      "multiple": false
+      ]
     },
     "gallery": {
       "type": "media",
+      "multiple": true,
       "allowedTypes": [
         "images"
-      ],
-      "multiple": true
+      ]
+    },
+    "imageurl": {
+      "type": "string"
     }
   }
 }

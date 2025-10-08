@@ -10,11 +10,6 @@
     },
     "Description": {
       "type": "string"
-    },
-    "Link": {
-      "type": "component",
-      "component": "shared.ssylka",
-      "repeatable": false
     }
   },
   "config": {}

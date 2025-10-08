@@ -1,6 +1,6 @@
 import NewsDetail from "../../../components/NewsDetail/NewsDetail";
 import { notFound } from "next/navigation";
-import { NewsItem, Participant } from "@/types/news";
+import { NewsItem, Author, Tag, Category } from "@/types/news";
 import { Grid, Container } from "@mui/material";
 import NewsSidebar from "./components/NewsSidebar";
 import { strapiClient } from "@/lib/strapi-client";
@@ -54,30 +54,30 @@ export default async function NewsPage({ params }: Props) {
         // Форматируем данные для компонента
         const formattedNewsItem: NewsItem = {
             title: newsItem.title,
-            desc: newsItem.introtext + (newsItem.fulltext ? `\n\n${newsItem.fulltext}` : ''),
+            desc: newsItem.introtext + (newsItem.fulltext ? `${newsItem.fulltext}` : ''),
             date: new Date(newsItem.created).toLocaleDateString('ru-RU', {
                 day: 'numeric',
                 month: 'long',
                 year: 'numeric'
             }),
+            image: newsItem.image?.url ? newsItem.image.url : null,
+            imageurl: newsItem.imageurl,
             tags: newsItem.tags?.map(tag => tag.name) || [],
-            images: getNewsImages(newsItem),
-            participants: getParticipants(newsItem),
+            gallery: getNewsGallery(newsItem),
+            authors: getAuthors(newsItem),
             category: newsItem.category?.name || 'Без категории',
-            hits: newsItem.hits || 0
         };
-
+        console.log('📝 Форматированные данные новости:', formattedNewsItem);
         return (
             <Container maxWidth="xl" sx={{ py: 4 }}>
                 <Grid container spacing={4}>
                     <Grid size={{xs: 12, md: 4}}>
                         <NewsSidebar
-                            participants={formattedNewsItem.participants}
+                            authors={formattedNewsItem.authors}
                             date={formattedNewsItem.date}
                             tags={formattedNewsItem.tags}
                             currentSlug={slug}
                             category={formattedNewsItem.category}
-                            hits={formattedNewsItem.hits}
                         />
                     </Grid>
                     <Grid size={{xs: 12, md: 8}}>
@@ -86,10 +86,11 @@ export default async function NewsPage({ params }: Props) {
                             desc={formattedNewsItem.desc}
                             date={formattedNewsItem.date}
                             tags={formattedNewsItem.tags}
-                            images={formattedNewsItem.images}
-                            participants={formattedNewsItem.participants}
+                            image={formattedNewsItem.imageurl}
+                            imageurl={formattedNewsItem.imageurl}
+                            gallery={formattedNewsItem.gallery}
+                            authors={formattedNewsItem.authors}
                             category={formattedNewsItem.category}
-                            hits={formattedNewsItem.hits}
                         />
                     </Grid>
                 </Grid>
@@ -103,60 +104,69 @@ export default async function NewsPage({ params }: Props) {
 }
 
 // Вспомогательные функции
-function getNewsImages(newsItem: any): string[] {
-    const images: string[] = [];
-    const defaultImage = "http://localhost:9000/assets.orgma.ru/pic2_2_2c7257fb6c.png";
-
+function getNewsGallery(newsItem: any): string[] {
     console.log('🖼️ Поиск изображений для новости:', newsItem.title);
     console.log('📸 Главное изображение:', newsItem.image);
+    console.log('🔗 Image URL:', newsItem.imageurl);
     console.log('🖼️ Галерея:', newsItem.gallery);
 
-    // Главное изображение
-    if (newsItem.image?.url) {
-        const imageUrl = `http://localhost:1337${newsItem.image.url}`;
-        images.push(imageUrl);
-        console.log('✅ Добавлено главное изображение:', imageUrl);
+    const images: string[] = [];
+
+    // 1. Сначала проверяем imageurl (внешняя ссылка)
+    if (newsItem.imageurl) {
+        images.push(newsItem.imageurl);
+        console.log('✅ Добавлено изображение из imageurl:', newsItem.imageurl);
     }
 
-    // Изображения из галереи
+    // 2. Затем проверяем локальное изображение из Strapi
+    if (newsItem.image?.url) {
+        const strapiImageUrl = newsItem.image.url;
+        // Добавляем только если это не дубликат
+        if (!images.includes(strapiImageUrl)) {
+            images.push(strapiImageUrl);
+            console.log('✅ Добавлено изображение из Strapi:', strapiImageUrl);
+        }
+    }
+
+    // 3. Добавляем изображения из галереи
     if (newsItem.gallery && Array.isArray(newsItem.gallery)) {
         newsItem.gallery.forEach((img: any) => {
             if (img.url) {
-                const imageUrl = `http://localhost:1337${img.url}`;
-                images.push(imageUrl);
-                console.log('✅ Добавлено изображение из галереи:', imageUrl);
+                const galleryImageUrl = img.url;
+                // Добавляем только если это не дубликат
+                if (!images.includes(galleryImageUrl)) {
+                    images.push(galleryImageUrl);
+                    console.log('✅ Добавлено изображение из галереи:', galleryImageUrl);
+                }
             }
         });
     }
 
-    // Если нет изображений, используем дефолтное
+    // 4. Если вообще нет изображений, используем заглушку
     if (images.length === 0) {
+        const defaultImage = "https://via.placeholder.com/800x400/4f46e5/ffffff?text=Нет+изображения";
         images.push(defaultImage);
-        console.log('🖼️ Используется изображение по умолчанию');
+        console.log('🖼️ Используется изображение-заглушка');
     }
 
-    console.log('🎨 Всего изображений:', images.length);
+    console.log('🎨 Всего изображений в галерее:', images.length);
     return images;
 }
 
-function getParticipants(newsItem: any): Participant[] {
-    const participants: Participant[] = [];
+function getAuthors(newsItem: any): Author[] {
+    const authors: Author[] = [];
 
     console.log('👥 Поиск участников для новости:', newsItem.title);
     console.log('✍️ Автор:', newsItem.author);
 
     if (newsItem.author) {
-        participants.push({
+        authors.push({
             id: newsItem.author.id.toString(),
             name: newsItem.author.name,
-            role: 'Автор',
-            link: `/participants/${newsItem.author.id}`,
-            avatar: newsItem.author.profile?.url ?
-                `http://localhost:1337${newsItem.author.profile.url}` : null
         });
         console.log('✅ Добавлен автор:', newsItem.author.name);
     }
 
-    console.log('👥 Всего участников:', participants.length);
-    return participants;
+    console.log('👥 Всего участников:', authors.length);
+    return authors;
 }

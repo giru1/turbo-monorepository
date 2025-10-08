@@ -7,7 +7,6 @@ export interface SharedCard extends Struct.ComponentSchema {
   };
   attributes: {
     Description: Schema.Attribute.String;
-    Link: Schema.Attribute.Component<'shared.ssylka', false>;
     Title: Schema.Attribute.String;
   };
 }
@@ -20,9 +19,19 @@ export interface SharedFooter extends Struct.ComponentSchema {
   attributes: {
     FooterAddress: Schema.Attribute.String;
     FooterEmail: Schema.Attribute.String;
-    FooterMenu: Schema.Attribute.Component<'shared.ssylka', true>;
+    FooterMenu: Schema.Attribute.Component<'shared.footer-menu', false>;
     FooterPhone: Schema.Attribute.String;
     FooterPhonePK: Schema.Attribute.String;
+  };
+}
+
+export interface SharedFooterMenu extends Struct.ComponentSchema {
+  collectionName: 'components_shared_footer_menus';
+  info: {
+    displayName: 'FooterMenu';
+  };
+  attributes: {
+    link: Schema.Attribute.Component<'shared.link', true>;
   };
 }
 
@@ -64,6 +73,17 @@ export interface SharedLeftDescription extends Struct.ComponentSchema {
   };
   attributes: {
     Description: Schema.Attribute.Blocks;
+  };
+}
+
+export interface SharedLink extends Struct.ComponentSchema {
+  collectionName: 'components_shared_links';
+  info: {
+    displayName: 'Link';
+  };
+  attributes: {
+    link: Schema.Attribute.String;
+    title: Schema.Attribute.String;
   };
 }
 
@@ -123,7 +143,7 @@ export interface SharedSidebar extends Struct.ComponentSchema {
     displayName: 'Sidebar';
   };
   attributes: {
-    link: Schema.Attribute.Component<'shared.ssylka', true>;
+    Link: Schema.Attribute.Component<'shared.link', true>;
   };
 }
 
@@ -139,33 +159,23 @@ export interface SharedSlider extends Struct.ComponentSchema {
   };
 }
 
-export interface SharedSsylka extends Struct.ComponentSchema {
-  collectionName: 'components_shared_ssylka';
-  info: {
-    displayName: 'Link';
-  };
-  attributes: {
-    Link: Schema.Attribute.String;
-    Title: Schema.Attribute.String;
-  };
-}
-
 declare module '@strapi/strapi' {
   export module Public {
     export interface ComponentSchemas {
       'shared.card': SharedCard;
       'shared.footer': SharedFooter;
+      'shared.footer-menu': SharedFooterMenu;
       'shared.head': SharedHead;
       'shared.header': SharedHeader;
       'shared.header-left': SharedHeaderLeft;
       'shared.left-description': SharedLeftDescription;
+      'shared.link': SharedLink;
       'shared.media': SharedMedia;
       'shared.quote': SharedQuote;
       'shared.rich-text': SharedRichText;
       'shared.seo': SharedSeo;
       'shared.sidebar': SharedSidebar;
       'shared.slider': SharedSlider;
-      'shared.ssylka': SharedSsylka;
     }
   }
 }

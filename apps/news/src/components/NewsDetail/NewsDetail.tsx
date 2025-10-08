@@ -18,23 +18,9 @@ import {
     Person,
     LocalOffer
 } from "@mui/icons-material";
+import React from "react";
+import { NewsItem, Author, Tag, Category, NewsDetailProps } from "@/types/news";
 
-interface Participant {
-    id: string;
-    name: string;
-    role: string;
-    link: string;
-}
-
-interface NewsDetailProps {
-    title: string;
-    desc: string;
-    date?: string;
-    img?: string;
-    images?: string[];
-    participants?: Participant[];
-    tags?: string[];
-}
 
 const StyledPaper = styled(Paper)(({ theme }) => ({
     padding: theme.spacing(4),
@@ -112,27 +98,25 @@ export default function NewsDetail({
                                        title,
                                        desc,
                                        date,
-                                       img,
-                                       images = [],
-                                       participants = [],
+                                       image,
+                                       imageurl,
+                                       gallery= [],
+                                       authors = [],
                                        tags = []
                                    }: NewsDetailProps) {
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down('md'));
 
     // Если есть дополнительные изображения, используем их вместе с основным
-    const allImages = img ? [img, ...images] : images;
+    const allImages = imageurl ? [imageurl, ...gallery] : gallery;
+
 
     return (
         <Grid container justifyContent="center">
-            <Grid item xs={12} md={10} lg={8}>
+            <Grid size={{xs: 12, md: 12, lg: 12}}>
                 <StyledPaper elevation={0}>
                     {/* Заголовок */}
-                    <TitleTypography
-                        variant={isMobile ? "h4" : "h3"}
-                        component="h1"
-                        gutterBottom
-                    >
+                    <TitleTypography variant={isMobile ? "h4" : "h3"} gutterBottom>
                         {title}
                     </TitleTypography>
 
@@ -176,27 +160,28 @@ export default function NewsDetail({
                         </ImageContainer>
                     )}
 
-                    {/* Участники */}
-                    {participants.length > 0 && (
+                    {/* Авторы */}
+                    {authors.length > 0 && (
                         <Box display="flex" alignItems="center" gap={2} mb={3}>
-                            <Person color="action" />
+                            {/*<Person color="action" />*/}
                             <AvatarGroup max={4}>
-                                {participants.map((participant) => {
-                                    const initials = participant.name
+                                {authors.map((author: Author) => {
+                                    const initials = author.name
                                         .split(" ")
-                                        .map((w) => w[0])
+                                        .map((w: string) => w[0])
                                         .join(""); // Например, "ИИ" для "Иванов Иван"
 
                                     return (
-                                        <Avatar key={participant.id} alt={participant.name}>
-                                            {initials}
-                                        </Avatar>
+                                        <Box key={author.id} display="flex" alignItems="center" gap={1}>
+                                            <Avatar alt={author.name}>{initials}</Avatar>
+                                            <Typography variant="body2" color="text.secondary">
+                                                {author.name}
+                                            </Typography>
+                                        </Box>
                                     );
                                 })}
                             </AvatarGroup>
-                            <Typography variant="body2" color="text.secondary">
-                                {participants.join(', ')}
-                            </Typography>
+
                         </Box>
                     )}
 

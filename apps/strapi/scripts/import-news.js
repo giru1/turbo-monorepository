@@ -41,6 +41,81 @@ async function checkCategoryExists(alias) {
     }
 }
 
+// Функция для извлечения ссылок на изображения из HTML галереи
+function extractGalleryUrls(galleryHtml) {
+    if (!galleryHtml) return [];
+
+    // Регулярное выражение для извлечения ссылок из атрибута href
+    const regex = /href="(\/media\/k2\/galleries\/[^"]+\.(jpg|jpeg|png|gif|webp))"/gi;
+
+    const matches = [];
+    let match;
+
+    while ((match = regex.exec(galleryHtml)) !== null) {
+        // Добавляем полный URL с базовым доменом
+        const fullUrl = 'https://www.orgma.ru' + match[1];
+        matches.push(fullUrl);
+    }
+
+    // Убираем дубликаты
+    return [...new Set(matches)];
+}
+
+// Функция для загрузки изображений в Strapi и получения их ID
+async function uploadGalleryImages(imageUrls) {
+    const uploadedImageIds = [];
+
+    for (const imageUrl of imageUrls) {
+        try {
+            console.log(`🖼️ Загрузка изображения галереи: ${imageUrl}`);
+
+            // Скачиваем изображение
+            const imageResponse = await axios.get(imageUrl, {
+                responseType: 'arraybuffer',
+                timeout: 30000
+            });
+
+            // Создаем FormData для загрузки
+            const FormData = require('form-data');
+            const form = new FormData();
+
+            // Получаем имя файла из URL
+            const fileName = imageUrl.split('/').pop() || 'gallery-image.jpg';
+
+            form.append('files', Buffer.from(imageResponse.data), {
+                filename: fileName,
+                contentType: imageResponse.headers['content-type'] || 'image/jpeg'
+            });
+
+            // Загружаем в Strapi
+            const uploadResponse = await axios.post(
+                `${STRAPI_URL}/api/upload`,
+                form,
+                {
+                    headers: {
+                        'Authorization': `Bearer ${API_TOKEN}`,
+                        ...form.getHeaders()
+                    },
+                    timeout: 30000
+                }
+            );
+
+            if (uploadResponse.data && uploadResponse.data.length > 0) {
+                uploadedImageIds.push(uploadResponse.data[0].id);
+                console.log(`✅ Изображение загружено в галерею: ${uploadResponse.data[0].id}`);
+            }
+
+            // Пауза между загрузками
+            await new Promise(resolve => setTimeout(resolve, 500));
+
+        } catch (error) {
+            console.log(`❌ Ошибка загрузки изображения галереи ${imageUrl}:`, error.message);
+        }
+    }
+
+    return uploadedImageIds;
+}
+
 async function importNews() {
     try {
         console.log('🚀 Запуск импорта данных...\n');
@@ -60,15 +135,12 @@ async function importNews() {
         console.log('📖 Чтение файла данных...');
         const jsonData = JSON.parse(fs.readFileSync('./data/data.json', 'utf8'));
 
-        // 1. Создаем категории (только основные, без parent)
+        // 1. Создаем категории
         console.log('\n📁 Создание категорий...');
         const categoryMap = new Map();
-
-        // Сначала создаем все категории без parent связей
         const allCategories = [jsonData.category, ...(jsonData.category.children || jsonData.category.chidlren || [])];
 
         for (const cat of allCategories) {
-            // Сначала проверяем, существует ли категория
             const existingCategoryId = await checkCategoryExists(cat.alias);
             if (existingCategoryId) {
                 categoryMap.set(cat.id, existingCategoryId);
@@ -76,14 +148,12 @@ async function importNews() {
                 continue;
             }
 
-            // ИСКЛЮЧАЕМ поле parent при создании
             const categoryData = {
                 data: {
                     name: cat.name,
                     alias: cat.alias,
                     description: cat.description || '',
                     ordering: parseInt(cat.ordering) || 0,
-                    // НЕ включаем parent здесь!
                 }
             };
 
@@ -134,7 +204,7 @@ async function importNews() {
             }
         }
 
-        // 3. Создаем авторов с предварительной проверкой
+        // 3. Создаем авторов
         console.log('\n👥 Создание авторов...');
         const authorMap = new Map();
         const uniqueAuthors = new Set();
@@ -148,7 +218,6 @@ async function importNews() {
         console.log(`📊 Найдено уникальных авторов: ${uniqueAuthors.size}`);
 
         for (const authorName of uniqueAuthors) {
-            // Сначала проверяем, существует ли автор
             const existingAuthorId = await checkAuthorExists(authorName);
             if (existingAuthorId) {
                 authorMap.set(authorName, existingAuthorId);
@@ -156,7 +225,6 @@ async function importNews() {
                 continue;
             }
 
-            // Если автор не существует, создаем его
             const authorData = {
                 data: {
                     name: authorName,
@@ -182,13 +250,13 @@ async function importNews() {
             }
         }
 
-        // 4. Импортируем новости с проверкой дубликатов
-        console.log('\n📰 Импорт новостей...');
+        // 4. Импортируем новости с галереей
+        console.log('\n📰 Импорт новостей с галереей...');
         let successCount = 0;
         let errorCount = 0;
         let skipCount = 0;
 
-        // Сначала проверим существующие новости по alias
+        // Проверка существующих новостей
         console.log('🔍 Проверка существующих новостей...');
         const existingNewsAliases = new Set();
         try {
@@ -231,21 +299,32 @@ async function importNews() {
                 continue;
             }
 
-            const newsData = {
-                data: {
-                    title: item.title,
-                    alias: item.alias,
-                    introtext: item.introtext || '',
-                    fulltext: item.fulltext || '',
-                    created: item.created,
-                    hits: parseInt(item.hits) || 0,
-                    featured: parseInt(item.featured) === 1,
-                    category: categoryId,
-                    author: authorId,
-                }
-            };
-
             try {
+                // Извлекаем ссылки на изображения галереи
+                const galleryUrls = extractGalleryUrls(item.gallery);
+                console.log(`🖼️ [${index + 1}] Найдено изображений в галерее: ${galleryUrls.length}`);
+
+                // Загружаем изображения галереи в Strapi
+                let galleryImageIds = [];
+                if (galleryUrls.length > 0) {
+                    galleryImageIds = await uploadGalleryImages(galleryUrls);
+                    console.log(`✅ Загружено изображений в медиатеку: ${galleryImageIds.length}`);
+                }
+
+                const newsData = {
+                    data: {
+                        title: item.title,
+                        alias: item.alias,
+                        introtext: item.introtext || '',
+                        fulltext: item.fulltext || '',
+                        created: item.created,
+                        imageurl: `https://www.orgma.ru${item.imageLarge}`,
+                        category: categoryId,
+                        author: authorId,
+                        gallery: galleryImageIds // Привязываем загруженные изображения
+                    }
+                };
+
                 await axios.post(
                     `${STRAPI_URL}/api/news-items`,
                     newsData,
@@ -256,18 +335,18 @@ async function importNews() {
                         }
                     }
                 );
-                console.log(`✅ [${index + 1}/${jsonData.items.length}] ${item.title}`);
+                console.log(`✅ [${index + 1}/${jsonData.items.length}] ${item.title} (галерея: ${galleryImageIds.length} изображений)`);
                 successCount++;
 
-                // Добавляем в множество существующих, чтобы избежать дубликатов в будущем
+                // Добавляем в множество существующих
                 existingNewsAliases.add(item.alias);
             } catch (error) {
                 console.log(`❌ [${index + 1}/${jsonData.items.length}] Ошибка: ${item.title} - ${error.response?.data?.error?.message || error.message}`);
                 errorCount++;
             }
 
-            // Задержка между запросами
-            await new Promise(resolve => setTimeout(resolve, 100));
+            // Увеличиваем задержку из-за загрузки изображений
+            await new Promise(resolve => setTimeout(resolve, 1000));
         }
 
         console.log('\n🎉 Импорт завершен!');

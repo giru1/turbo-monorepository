@@ -1,4 +1,3 @@
-// apps/news/src/lib/strapi-client.js
 class StrapiClient {
     constructor() {
         this.baseURL = process.env.NEXT_PUBLIC_STRAPI_URL || 'http://localhost:1337';
@@ -120,7 +119,7 @@ class StrapiClient {
     // Метод для получения новости по slug
     async getNewsBySlug(slug) {
         try {
-            const response = await fetch(`${STRAPI_API_URL}/api/news?filters[alias][$eq]=${slug}&populate=*`, {
+            const response = await fetch(`${this.baseURL}/api/news-items?filters[alias][$eq]=${slug}&populate=*`, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
