@@ -10,6 +10,12 @@ interface FooterProps {
     footerData: any;
 }
 
+interface MenuItem {
+    id: number;
+    title: string;
+    link: string | null;
+}
+
 export default function Footer({ footerData }: FooterProps) {
     // Если данные не загружены, показываем заглушку
     if (!footerData) {
@@ -27,22 +33,18 @@ export default function Footer({ footerData }: FooterProps) {
     const email = footerData?.email;
     const phone = footerData?.phone;
     const phonePK = footerData?.phonePK;
-
-
-    // Для коллекции menu-footers извлекаем атрибуты каждого элемента
-    const menuItems = footerData.menuData?.data || [];
-    const menuAttributes = menuItems.map((item: any) => item.attributes || {});
+    const menuItems: MenuItem[] = footerData?.menu || [];
 
     // Разделяем меню на две части
-    const firstMenuItems = menuAttributes.slice(0, 3);
-    const secondMenuItems = menuAttributes.slice(3, 6);
+    const firstMenuItems = menuItems.slice(0, 3);
+    const secondMenuItems = menuItems.slice(3, 6);
 
     return (
         <>
             <footer className={styles.footer}>
                 <Container maxWidth="xl" sx={{marginBottom: 2, marginTop: 2}}>
                     <Grid container>
-                        <Grid size={{xs: 12, sm: 6, md: 4}}>
+                        <Grid size={{xs: 12, sm: 6, md: 6}}>
                             <div className={styles.footerColumn}>
                                 <p className={styles.footerColumnP}>
                                     {address} <br/>
@@ -65,14 +67,18 @@ export default function Footer({ footerData }: FooterProps) {
                             </div>
                         </Grid>
 
-
-                        <Grid size={{xs: 12, sm: 6, md: 4}}>
+                        <Grid size={{xs: 12, sm: 6, md: 3}}>
                             <div className={styles.footerColumn}>
                                 <h4 className={styles.columnTitle}>Контакты</h4>
                                 <ul className={styles.footerList}>
-                                    {firstMenuItems.map((item: any, index: number) => (
-                                        <li key={index}>
-                                            <a className={styles.footerLink} href={item.link}>
+                                    {firstMenuItems.map((item: MenuItem) => (
+                                        <li key={item.id}>
+                                            <a
+                                                className={styles.footerLink}
+                                                href={item.link || '#'}
+                                                target={item.link?.startsWith('http') ? '_blank' : '_self'}
+                                                rel={item.link?.startsWith('http') ? 'noopener noreferrer' : ''}
+                                            >
                                                 {item.title}
                                             </a>
                                         </li>
@@ -81,38 +87,25 @@ export default function Footer({ footerData }: FooterProps) {
                             </div>
                         </Grid>
 
-                        <Grid size={{xs: 12, sm: 6, md: 4}}>
+                        <Grid size={{xs: 12, sm: 6, md: 3}}>
                             <div className={styles.footerColumn}>
-                                <h4 className={styles.columnTitle}>Контакты</h4>
                                 <ul className={styles.footerList}>
-                                    {secondMenuItems.map((item: any, index: number) => (
-                                        <li key={index}>
-                                            <a className={styles.footerLink} href={item.link}>
+                                    {secondMenuItems.map((item: MenuItem) => (
+                                        <li key={item.id}>
+                                            <a
+                                                className={styles.footerLink}
+                                                href={item.link || '#'}
+                                                target={item.link?.startsWith('http') ? '_blank' : '_self'}
+                                                rel={item.link?.startsWith('http') ? 'noopener noreferrer' : ''}
+                                            >
                                                 {item.title}
                                             </a>
                                         </li>
                                     ))}
-                                </ul>
-                            </div>
-                        </Grid>
-
-
-                        <Grid size={{xs: 12, sm: 6, md: 4}}>
-                            <div className={styles.footerColumn}>
-                                <ul className={styles.footerList}>
-                                    <li><a className={styles.footerLink}
-                                           href="https://www.orgma.ru/ru/akademiya/protivodejstvie-korruptsii/item/403">Стоп-коррупция</a>
-                                    </li>
-                                    <li><a className={styles.footerLink}
-                                           href="https://www.orgma.ru/sveden/document/politika-v-otnoshenii-obrabotki-personalnyh-dannyh.pdf">Политика
-                                        конфиденциальности</a></li>
-                                    <li><a className={styles.footerLink} href="https://pay.orgma.ru/">Реквизиты</a></li>
-
                                 </ul>
                             </div>
                         </Grid>
                     </Grid>
-
 
                     {/* Bottom row */}
                     <Grid container>
@@ -128,8 +121,6 @@ export default function Footer({ footerData }: FooterProps) {
                                     <a className={styles.footerLink}
                                        href="https://www.orgma.ru"> https://www.orgma.ru</a>
                                 </p>
-
-
                                 <p className={styles.support}>
                                     Техподдержка сайта: <a className={styles.footerLink}
                                                            href="mailto:www@orgma.ru">www@orgma.ru</a>
@@ -137,9 +128,8 @@ export default function Footer({ footerData }: FooterProps) {
                             </div>
                         </Grid>
                     </Grid>
-
-
                 </Container>
             </footer>
-        </>)
+        </>
+    );
 }

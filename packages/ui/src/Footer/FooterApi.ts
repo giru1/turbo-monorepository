@@ -2,7 +2,7 @@ export async function getFooterData() {
     const API_URL = process.env.STRAPI_API_URL || "http://127.0.0.1:1337";
 
     try {
-        const response = await fetch(`${API_URL}/api/Sites?populate=*`);
+        const response = await fetch(`${API_URL}/api/Sites?populate[Footer][populate][FooterMenu][populate]=*`);
         if (!response.ok) {
             throw new Error(`Ошибка HTTP: ${response.status}`);
         }
@@ -21,6 +21,7 @@ export async function getFooterData() {
             phone: footer.FooterPhone,
             phonePK: footer.FooterPhonePK,
             email: footer.FooterEmail,
+            menu: footer.FooterMenu?.link || [] // Добавляем меню
         };
     } catch (error) {
         console.error("Ошибка при получении данных футера:", error);
