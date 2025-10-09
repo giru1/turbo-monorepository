@@ -1,6 +1,6 @@
 'use client';
 import styles from "./page.module.css";
-import { Grid, Container, Typography, Box, Button } from "@mui/material";
+import { Grid, Container, Typography, Box, Button, Pagination, Select, MenuItem, FormControl, InputLabel } from "@mui/material";
 import News from "../components/News/News";
 import NewsFilter from "../components/NewsFilter/NewsFilter";
 import React, { useState, useEffect } from "react";
@@ -39,12 +39,20 @@ export default function NewsListPage() {
   const author = searchParams.get('author');
   const tag = searchParams.get('tag');
   const category = searchParams.get('category');
+  const date = searchParams.get('date');
+  const page = parseInt(searchParams.get('page') || '1');
+  const pageSize = parseInt(searchParams.get('pageSize') || '10');
 
   const [news, setNews] = useState<StrapiNewsItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [filteredNews, setFilteredNews] = useState<StrapiNewsItem[]>([]);
+  const [paginatedNews, setPaginatedNews] = useState<StrapiNewsItem[]>([]);
   const [categories, setCategories] = useState<any[]>([]);
   const [error, setError] = useState<string | null>(null);
+
+  // Настройки пагинации
+  const pageSizes = [10, 20, 30, 50, 100];
+  const totalPages = Math.ceil(filteredNews.length / pageSize);
 
   // Загрузка новостей
   useEffect(() => {
@@ -58,7 +66,6 @@ export default function NewsListPage() {
         setNews(newsResponse.data || []);
         setFilteredNews(newsResponse.data || []);
 
-
         // Загружаем категории
         const categoriesResponse = await strapiClient.getCategories();
         console.log('📂 Загружено категорий:', categoriesResponse.data?.length);
@@ -70,7 +77,6 @@ export default function NewsListPage() {
       } finally {
         setLoading(false);
       }
-      console.log(filteredNews, "filteredNews1111111111111111111111111");
     }
 
     loadData();
@@ -79,6 +85,7 @@ export default function NewsListPage() {
   // Фильтрация новостей
   useEffect(() => {
     console.log('🎯 Начало фильтрации. Всего новостей:', news.length);
+    console.log('📅 Параметры фильтрации:', { category, tag, author, date });
 
     let filtered = news;
 
@@ -97,6 +104,16 @@ export default function NewsListPage() {
       filtered = filtered.filter(item => item.author?.name === author);
     }
 
+    // Фильтрация по конкретной дате
+    if (date) {
+      const filterDate = new Date(date);
+      filtered = filtered.filter(item => {
+        const itemDate = new Date(item.created);
+        return itemDate.toDateString() === filterDate.toDateString();
+      });
+      console.log('📅 Фильтрация по конкретной дате:', date, 'Найдено:', filtered.length);
+    }
+
     // Фильтрация по диапазону дат
     const startDateParam = searchParams.get('startDate');
     const endDateParam = searchParams.get('endDate');
@@ -113,7 +130,17 @@ export default function NewsListPage() {
 
     console.log('✅ После фильтрации осталось новостей:', filtered.length);
     setFilteredNews(filtered);
-  }, [category, tag, author, searchParams, news]);
+  }, [category, tag, author, date, searchParams, news]);
+
+  // Пагинация отфильтрованных новостей
+  useEffect(() => {
+    const startIndex = (page - 1) * pageSize;
+    const endIndex = startIndex + pageSize;
+    const paginated = filteredNews.slice(startIndex, endIndex);
+
+    setPaginatedNews(paginated);
+    console.log(`📄 Пагинация: страница ${page}, размер ${pageSize}, показано ${paginated.length} из ${filteredNews.length}`);
+  }, [filteredNews, page, pageSize]);
 
   // Обработчик изменения фильтров
   const handleFilterChange = (filters: {
@@ -121,6 +148,7 @@ export default function NewsListPage() {
     tag?: string;
     author?: string;
     dateRange?: { start: Date | null; end: Date | null };
+    specificDate?: string;
   }) => {
     const params = new URLSearchParams();
 
@@ -128,40 +156,64 @@ export default function NewsListPage() {
     if (filters.tag) params.set('tag', filters.tag);
     if (filters.author) params.set('author', filters.author);
 
-    // Для диапазона дат сохраняем в URL как startDate и endDate
+    if (filters.specificDate) {
+      params.set('date', filters.specificDate);
+    }
+
     if (filters.dateRange?.start && filters.dateRange?.end) {
       params.set('startDate', filters.dateRange.start.toISOString());
       params.set('endDate', filters.dateRange.end.toISOString());
     }
 
+    // Сбрасываем страницу при изменении фильтров
+    params.set('page', '1');
+    params.set('pageSize', pageSize.toString());
+
+    router.push(`?${params.toString()}`, { scroll: false });
+  };
+
+  // Обработчик изменения страницы
+  const handlePageChange = (event: React.ChangeEvent<unknown>, value: number) => {
+    const params = new URLSearchParams(searchParams.toString());
+    params.set('page', value.toString());
+    router.push(`?${params.toString()}`, { scroll: false });
+  };
+
+  // Обработчик изменения размера страницы
+  const handlePageSizeChange = (event: any) => {
+    const newPageSize = event.target.value;
+    const params = new URLSearchParams(searchParams.toString());
+    params.set('pageSize', newPageSize.toString());
+    params.set('page', '1'); // Сбрасываем на первую страницу при изменении размера
     router.push(`?${params.toString()}`, { scroll: false });
   };
 
   // Получение URL изображения
   const getNewsImage = (item: StrapiNewsItem) => {
-    // const defaultImage = "http://localhost:9000/assets.orgma.ru/pic2_2_2c7257fb6c.png";
-    const defaultImage = item;
-  console.log(item, "gfgfd");
-    // Проверяем главное изображение
-    // if (item.imageurl?.url) {
-    //   const imageUrl = `http://localhost:1337${item.imageurl.url}`;
-    //   console.log('🖼️ Используется главное изображение:', imageUrl);
-    //   return imageUrl;
-    // }
+    const defaultImage = "https://via.placeholder.com/800x400/4f46e5/ffffff?text=Нет+изображения";
 
-    // Проверяем галерею
+    if (item.image?.url) {
+      const imageUrl = item.image.url;
+      console.log('🖼️ Используется главное изображение из Strapi:', imageUrl);
+      return imageUrl;
+    }
+
+    if (item.imageurl) {
+      console.log('🖼️ Используется imageurl:', item.imageurl);
+      return item.imageurl;
+    }
+
     if (item.gallery && Array.isArray(item.gallery) && item.gallery.length > 0 && item.gallery[0]?.url) {
       const imageUrl = item.gallery[0].url;
       console.log('🖼️ Используется изображение из галереи:', imageUrl);
-      console.log(imageUrl, "5555");
       return imageUrl;
     }
 
     console.log('🖼️ Используется изображение по умолчанию');
-    return item;
+    return defaultImage;
   };
 
-// Получение тегов
+  // Получение тегов
   const getNewsTags = (item: StrapiNewsItem) => {
     if (!item.tags || !Array.isArray(item.tags) || item.tags.length === 0) {
       return [];
@@ -175,7 +227,7 @@ export default function NewsListPage() {
     return tags;
   };
 
-// Получение авторов
+  // Получение авторов
   const getAuthors = () => {
     const authorsMap = new Map();
     news.forEach(item => {
@@ -186,27 +238,25 @@ export default function NewsListPage() {
     return Array.from(authorsMap.values());
   }
 
-// Получение дат
+  // Получение дат
   const getAvailableDates = () => {
     const dates = news
         .map(item => item?.created)
         .filter(Boolean)
-        .map(created => new Date(created).toLocaleDateString('ru-RU'));
+        .map(created => new Date(created).toISOString().split('T')[0]);
 
     return Array.from(new Set(dates)).sort((a, b) =>
-        new Date(b.split('.').reverse().join('-')).getTime() -
-        new Date(a.split('.').reverse().join('-')).getTime()
+        new Date(b).getTime() - new Date(a).getTime()
     );
   }
 
-  // Форматирование даты
+  // Форматирование даты для отображения
   const formatDate = (dateString: string) => {
     const date = new Date(dateString).toLocaleDateString('ru-RU', {
       day: 'numeric',
       month: 'long',
       year: 'numeric'
     });
-    console.log('📅 Форматирование даты:', dateString, '→', date);
     return date;
   };
 
@@ -229,24 +279,24 @@ export default function NewsListPage() {
     );
   }
 
-  console.log('🎨 Рендеринг компонента. Новостей для отображения:', filteredNews.length);
-
   return (
       <Container maxWidth="xl" sx={{ marginBottom: 4, marginTop: 4 }}>
         {/* Отладочная информация */}
-        <Box sx={{ mb: 2, p: 2, bgcolor: 'grey.100', borderRadius: 1 }}>
-          <Typography variant="body2" color="text.secondary">
-            Отладка: Всего новостей {news.length}, отфильтровано {filteredNews.length}
-          </Typography>
-        </Box>
+        {/*<Box sx={{ mb: 2, p: 2, bgcolor: 'grey.100', borderRadius: 1 }}>*/}
+        {/*  <Typography variant="body2" color="text.secondary">*/}
+        {/*    Отладка: Всего новостей {news.length}, отфильтровано {filteredNews.length}*/}
+        {/*    {date && `, фильтр по дате: ${formatDate(date)}`}*/}
+        {/*  </Typography>*/}
+        {/*</Box>*/}
 
-        {(category || tag || author) && (
+        {(category || tag || author || date) && (
             <Box sx={{ mb: 3 }}>
               <Typography variant="h5">
                 Фильтр:
                 {category && ` Категория: ${category}`}
                 {tag && ` Тег: ${tag}`}
                 {author && ` Автор: ${author}`}
+                {date && ` Дата: ${formatDate(date)}`}
               </Typography>
             </Box>
         )}
@@ -268,42 +318,95 @@ export default function NewsListPage() {
                       category: category || '',
                       tag: tag || '',
                       author: author || '',
+                      specificDate: date || '',
                     }}
                 />
               </div>
             </Grid>
             <Grid size={{ xs: 12, md: 8 }}>
               <div className={styles.content__right}>
-                <Typography variant="h6" sx={{ mb: 2 }}>
-                  Найдено новостей: {filteredNews.length}
-                </Typography>
+                {/* Панель управления пагинацией */}
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+                  <Typography variant="h6">
+                    Найдено новостей: {filteredNews.length}
+                    {date && ` за ${formatDate(date)}`}
+                  </Typography>
 
-                {filteredNews.length > 0 ? (
-                    <Grid container spacing={2}>
-                      {filteredNews.map((item) => {
-                        if (!item?.title) {
-                          console.log('⚠️ Пропущен элемент с отсутствующим заголовком:', item?.id);
-                          return null;
-                        }
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                    <Typography variant="body2">
+                      Новостей на странице:
+                    </Typography>
+                    <FormControl size="small" sx={{ minWidth: 80 }}>
+                      <Select
+                          value={pageSize}
+                          onChange={handlePageSizeChange}
+                          displayEmpty
+                      >
+                        {pageSizes.map(size => (
+                            <MenuItem key={size} value={size}>
+                              {size}
+                            </MenuItem>
+                        ))}
+                      </Select>
+                    </FormControl>
+                  </Box>
+                </Box>
 
-                        console.log('📄 Рендеринг новости:', item.title);
-                        return (
-                            <News
-                                key={item.id}
-                                title={item.title}
-                                descSmall={item.introtext}
-                                date={formatDate(item.created)}
-                                link={`/news/${item.alias}`}
-                                img={getNewsImage(item.imageurl)}
-                                tags={getNewsTags(item)}
+                {/* Список новостей */}
+                {paginatedNews.length > 0 ? (
+                    <>
+                      <Grid container spacing={2}>
+                        {paginatedNews.map((item) => {
+                          if (!item?.title) {
+                            return null;
+                          }
+
+                          return (
+                              <News
+                                  key={item.id}
+                                  title={item.title}
+                                  descSmall={item.introtext}
+                                  date={formatDate(item.created)}
+                                  link={`/news/${item.alias}`}
+                                  img={getNewsImage(item)}
+                                  tags={getNewsTags(item)}
+                              />
+                          );
+                        })}
+                      </Grid>
+
+                      {/* Пагинация */}
+                      {totalPages > 1 && (
+                          <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
+                            <Pagination
+                                count={totalPages}
+                                page={page}
+                                onChange={handlePageChange}
+                                color="primary"
+                                size="large"
+                                showFirstButton
+                                showLastButton
                             />
-                        );
-                      })}
-                    </Grid>
+                          </Box>
+                      )}
+
+                      {/* Информация о пагинации */}
+                      <Box sx={{ textAlign: 'center', mt: 2 }}>
+                        <Typography variant="body2" color="text.secondary">
+                          Показано {paginatedNews.length} из {filteredNews.length} новостей
+                          {totalPages > 1 && ` (страница ${page} из ${totalPages})`}
+                        </Typography>
+                      </Box>
+                    </>
                 ) : (
                     <Box sx={{ textAlign: 'center', padding: '40px' }}>
                       <Typography variant="h6">
-                        {news.length === 0 ? 'Новости не найдены' : 'Новости по выбранным фильтрам не найдены'}
+                        {news.length === 0
+                            ? 'Новости не найдены'
+                            : date
+                                ? `Новости за ${formatDate(date)} не найдены`
+                                : 'Новости по выбранным фильтрам не найдены'
+                        }
                       </Typography>
                     </Box>
                 )}

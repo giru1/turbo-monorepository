@@ -5,6 +5,34 @@ const fs = require('fs');
 const STRAPI_URL = 'http://localhost:1337';
 const API_TOKEN = '50d5040f74c057b6d5b8ae58c53b81b43feea4736f9e557403b3a5f4554aff7053c89ce5a1f0dcd8652dbd3a86461a7ab20aca9d34bd3a2eb3ceefbabc257a10033ebc159733dff681b4b8715d2157df20a79e17fda6f86e9b33b9a2e50646643bf8d95b1c0bba90890a94960f01588cc10a26ef10e2f41d5ecf45a7b8708bbf';
 
+// Функция для детального логирования ошибок
+function logErrorDetails(error, context = '') {
+    console.log(`🔍 Детали ошибки ${context}:`);
+
+    if (error.response) {
+        // Ошибка от сервера
+        console.log(`   📡 Статус: ${error.response.status}`);
+        console.log(`   📝 Сообщение: ${error.response.statusText}`);
+        console.log(`   🔗 URL: ${error.response.config?.url}`);
+
+        if (error.response.data) {
+            console.log(`   📊 Данные ответа:`, JSON.stringify(error.response.data, null, 2));
+        }
+    } else if (error.request) {
+        // Ошибка сети
+        console.log(`   🌐 Ошибка сети: нет ответа от сервера`);
+        console.log(`   🔗 Запрос:`, error.request);
+    } else {
+        // Другие ошибки
+        console.log(`   ⚠️ Ошибка: ${error.message}`);
+    }
+
+    if (error.config) {
+        console.log(`   📋 Метод: ${error.config.method}`);
+        console.log(`   🏷️  Заголовки:`, error.config.headers);
+    }
+}
+
 // Функция для проверки существования автора
 async function checkAuthorExists(authorName) {
     try {
@@ -18,7 +46,8 @@ async function checkAuthorExists(authorName) {
         );
         return response.data.data.length > 0 ? response.data.data[0].id : null;
     } catch (error) {
-        console.log(`❌ Ошибка проверки автора ${authorName}:`, error.message);
+        console.log(`❌ Ошибка проверки автора ${authorName}:`);
+        logErrorDetails(error, 'checkAuthorExists');
         return null;
     }
 }
@@ -36,14 +65,18 @@ async function checkCategoryExists(alias) {
         );
         return response.data.data.length > 0 ? response.data.data[0].id : null;
     } catch (error) {
-        console.log(`❌ Ошибка проверки категории ${alias}:`, error.message);
+        console.log(`❌ Ошибка проверки категории ${alias}:`);
+        logErrorDetails(error, 'checkCategoryExists');
         return null;
     }
 }
 
 // Функция для извлечения ссылок на изображения из HTML галереи
 function extractGalleryUrls(galleryHtml) {
-    if (!galleryHtml) return [];
+    if (!galleryHtml) {
+        console.log('ℹ️  Галерея пустая или отсутствует');
+        return [];
+    }
 
     // Регулярное выражение для извлечения ссылок из атрибута href
     const regex = /href="(\/media\/k2\/galleries\/[^"]+\.(jpg|jpeg|png|gif|webp))"/gi;
@@ -57,83 +90,181 @@ function extractGalleryUrls(galleryHtml) {
         matches.push(fullUrl);
     }
 
+    console.log(`🔍 Извлечено ${matches.length} ссылок из галереи`);
+
     // Убираем дубликаты
-    return [...new Set(matches)];
+    const uniqueMatches = [...new Set(matches)];
+    if (uniqueMatches.length !== matches.length) {
+        console.log(`🔄 Убрано ${matches.length - uniqueMatches.length} дубликатов`);
+    }
+
+    return uniqueMatches;
 }
 
-// Функция для загрузки изображений в Strapi и получения их ID
+// Функция для проверки доступности изображения
+async function checkImageAvailability(imageUrl) {
+    try {
+        const response = await axios.head(imageUrl, {
+            timeout: 10000,
+            validateStatus: function (status) {
+                return status < 500; // Принимаем все статусы кроме 5xx
+            }
+        });
+
+        const isAvailable = response.status === 200;
+        console.log(`   📊 Статус изображения ${imageUrl}: ${response.status} ${isAvailable ? '✅' : '❌'}`);
+
+        return {
+            available: isAvailable,
+            status: response.status,
+            contentType: response.headers['content-type'],
+            contentLength: response.headers['content-length']
+        };
+    } catch (error) {
+        console.log(`   ❌ Изображение недоступно: ${imageUrl}`);
+        return {
+            available: false,
+            error: error.message
+        };
+    }
+}
+
+// Функция для загрузки одного изображения в Strapi
+async function uploadImageToStrapi(imageUrl) {
+    try {
+        console.log(`🖼️ Загрузка изображения: ${imageUrl}`);
+
+        // Сначала проверяем доступность изображения
+        const availability = await checkImageAvailability(imageUrl);
+        if (!availability.available) {
+            console.log(`   ⏭️ Пропуск: изображение недоступно (статус: ${availability.status || 'error'})`);
+            return null;
+        }
+
+        // Скачиваем изображение
+        const imageResponse = await axios.get(imageUrl, {
+            responseType: 'arraybuffer',
+            timeout: 30000
+        });
+
+        // Проверяем размер изображения
+        const imageSize = imageResponse.data.length;
+        console.log(`   📏 Размер изображения: ${(imageSize / 1024 / 1024).toFixed(2)} MB`);
+
+        if (imageSize > 10 * 1024 * 1024) { // 10MB limit
+            console.log(`   ⚠️  Предупреждение: большой размер изображения`);
+        }
+
+        // Создаем FormData для загрузки
+        const FormData = require('form-data');
+        const form = new FormData();
+
+        // Получаем имя файла из URL
+        const fileName = imageUrl.split('/').pop() || 'image.jpg';
+        console.log(`   📁 Имя файла: ${fileName}`);
+
+        form.append('files', Buffer.from(imageResponse.data), {
+            filename: fileName,
+            contentType: imageResponse.headers['content-type'] || 'image/jpeg'
+        });
+
+        // Загружаем в Strapi
+        const uploadResponse = await axios.post(
+            `${STRAPI_URL}/api/upload`,
+            form,
+            {
+                headers: {
+                    'Authorization': `Bearer ${API_TOKEN}`,
+                    ...form.getHeaders()
+                },
+                timeout: 30000
+            }
+        );
+
+        if (uploadResponse.data && uploadResponse.data.length > 0) {
+            console.log(`✅ Изображение загружено: ${uploadResponse.data[0].id}`);
+            return uploadResponse.data[0].id;
+        } else {
+            console.log(`❌ Пустой ответ от Strapi при загрузке изображения`);
+            return null;
+        }
+    } catch (error) {
+        console.log(`❌ Ошибка загрузки изображения ${imageUrl}:`);
+        logErrorDetails(error, 'uploadImageToStrapi');
+        return null;
+    }
+}
+
+// Функция для загрузки изображений галереи в Strapi и получения их ID
 async function uploadGalleryImages(imageUrls) {
     const uploadedImageIds = [];
 
-    for (const imageUrl of imageUrls) {
+    console.log(`📦 Начало загрузки ${imageUrls.length} изображений галереи`);
+
+    for (const [index, imageUrl] of imageUrls.entries()) {
         try {
-            console.log(`🖼️ Загрузка изображения галереи: ${imageUrl}`);
-
-            // Скачиваем изображение
-            const imageResponse = await axios.get(imageUrl, {
-                responseType: 'arraybuffer',
-                timeout: 30000
-            });
-
-            // Создаем FormData для загрузки
-            const FormData = require('form-data');
-            const form = new FormData();
-
-            // Получаем имя файла из URL
-            const fileName = imageUrl.split('/').pop() || 'gallery-image.jpg';
-
-            form.append('files', Buffer.from(imageResponse.data), {
-                filename: fileName,
-                contentType: imageResponse.headers['content-type'] || 'image/jpeg'
-            });
-
-            // Загружаем в Strapi
-            const uploadResponse = await axios.post(
-                `${STRAPI_URL}/api/upload`,
-                form,
-                {
-                    headers: {
-                        'Authorization': `Bearer ${API_TOKEN}`,
-                        ...form.getHeaders()
-                    },
-                    timeout: 30000
-                }
-            );
-
-            if (uploadResponse.data && uploadResponse.data.length > 0) {
-                uploadedImageIds.push(uploadResponse.data[0].id);
-                console.log(`✅ Изображение загружено в галерею: ${uploadResponse.data[0].id}`);
+            console.log(`\n🖼️ [${index + 1}/${imageUrls.length}] Загрузка изображения галереи`);
+            const imageId = await uploadImageToStrapi(imageUrl);
+            if (imageId) {
+                uploadedImageIds.push(imageId);
+                console.log(`✅ Успешно загружено: ${imageId}`);
+            } else {
+                console.log(`❌ Не удалось загрузить: ${imageUrl}`);
             }
 
             // Пауза между загрузками
             await new Promise(resolve => setTimeout(resolve, 500));
 
         } catch (error) {
-            console.log(`❌ Ошибка загрузки изображения галереи ${imageUrl}:`, error.message);
+            console.log(`❌ Критическая ошибка загрузки изображения галереи ${imageUrl}:`);
+            logErrorDetails(error, 'uploadGalleryImages');
         }
     }
 
+    console.log(`🎉 Завершена загрузка галереи: ${uploadedImageIds.length}/${imageUrls.length} успешно`);
     return uploadedImageIds;
 }
 
+// Функция для проверки данных перед созданием новости
+function validateNewsData(item, categoryId, authorId, mainImageId, galleryImageIds) {
+    const errors = [];
+
+    if (!item.title) errors.push('отсутствует заголовок');
+    if (!item.alias) errors.push('отсутствует alias');
+    if (!categoryId) errors.push('не найдена категория');
+    if (!authorId) errors.push('не найден автор');
+    if (!item.created) errors.push('отсутствует дата создания');
+
+    return {
+        isValid: errors.length === 0,
+        errors: errors
+    };
+}
+
 async function importNews() {
+    const failedItems = []; // Для сбора информации о неудачных импортах
+
     try {
         console.log('🚀 Запуск импорта данных...\n');
 
         // Проверка подключения к Strapi
         try {
-            await axios.get(`${STRAPI_URL}/api/categories`, {
-                headers: { 'Authorization': `Bearer ${API_TOKEN}` }
+            const healthCheck = await axios.get(`${STRAPI_URL}/api/categories`, {
+                headers: { 'Authorization': `Bearer ${API_TOKEN}` },
+                timeout: 10000
             });
             console.log('✅ Подключение к Strapi успешно');
+            console.log(`   📊 Статус: ${healthCheck.status}`);
         } catch (error) {
-            console.log('❌ Ошибка подключения к Strapi:', error.response?.data?.error?.message || error.message);
+            console.log('❌ Ошибка подключения к Strapi:');
+            logErrorDetails(error, 'healthCheck');
             return;
         }
 
         // Чтение данных
         console.log('📖 Чтение файла данных...');
         const jsonData = JSON.parse(fs.readFileSync('./data/data.json', 'utf8'));
+        console.log(`📊 Загружено ${jsonData.items.length} новостей из файла`);
 
         // 1. Создаем категории
         console.log('\n📁 Создание категорий...');
@@ -172,39 +303,12 @@ async function importNews() {
                 categoryMap.set(cat.id, response.data.data.id);
                 console.log(`✅ Создана: ${cat.name} (ID: ${response.data.data.id})`);
             } catch (error) {
-                console.log(`❌ Ошибка создания категории ${cat.name}:`, error.response?.data?.error?.message || error.message);
+                console.log(`❌ Ошибка создания категории ${cat.name}:`);
+                logErrorDetails(error, 'createCategory');
             }
         }
 
-        // 2. Теперь обновляем parent связи (если нужно)
-        console.log('\n🔗 Настройка родительских связей...');
-        for (const cat of allCategories) {
-            if (cat.parent && cat.parent !== "0" && categoryMap.has(cat.id) && categoryMap.has(cat.parent)) {
-                try {
-                    const updateData = {
-                        data: {
-                            parent: categoryMap.get(cat.parent)
-                        }
-                    };
-
-                    await axios.put(
-                        `${STRAPI_URL}/api/categories/${categoryMap.get(cat.id)}`,
-                        updateData,
-                        {
-                            headers: {
-                                'Authorization': `Bearer ${API_TOKEN}`,
-                                'Content-Type': 'application/json'
-                            }
-                        }
-                    );
-                    console.log(`✅ Связь: ${cat.name} → родитель ${cat.parent}`);
-                } catch (error) {
-                    console.log(`❌ Ошибка установки связи для ${cat.name}:`, error.response?.data?.error?.message || error.message);
-                }
-            }
-        }
-
-        // 3. Создаем авторов
+        // 2. Создаем авторов
         console.log('\n👥 Создание авторов...');
         const authorMap = new Map();
         const uniqueAuthors = new Set();
@@ -246,12 +350,13 @@ async function importNews() {
                 authorMap.set(authorName, response.data.data.id);
                 console.log(`✅ Создан автор: ${authorName} (ID: ${response.data.data.id})`);
             } catch (error) {
-                console.log(`❌ Ошибка создания автора ${authorName}:`, error.response?.data?.error?.message || error.message);
+                console.log(`❌ Ошибка создания автора ${authorName}:`);
+                logErrorDetails(error, 'createAuthor');
             }
         }
 
-        // 4. Импортируем новости с галереей
-        console.log('\n📰 Импорт новостей с галереей...');
+        // 3. Импортируем новости с изображениями и галереей
+        console.log('\n📰 Импорт новостей с изображениями и галереей...');
         let successCount = 0;
         let errorCount = 0;
         let skipCount = 0;
@@ -273,13 +378,16 @@ async function importNews() {
             });
             console.log(`📊 Найдено существующих новостей: ${existingNewsAliases.size}`);
         } catch (error) {
-            console.log('⚠️ Не удалось проверить существующие новости:', error.message);
+            console.log('⚠️ Не удалось проверить существующие новости:');
+            logErrorDetails(error, 'checkExistingNews');
         }
 
         for (const [index, item] of jsonData.items.entries()) {
+            console.log(`\n--- Обработка [${index + 1}/${jsonData.items.length}]: ${item.title} ---`);
+
             // Проверяем, существует ли новость с таким alias
             if (existingNewsAliases.has(item.alias)) {
-                console.log(`⏭️ [${index + 1}/${jsonData.items.length}] Пропущена (дубликат): ${item.title}`);
+                console.log(`⏭️ Пропущена (дубликат): ${item.title}`);
                 skipCount++;
                 continue;
             }
@@ -288,27 +396,61 @@ async function importNews() {
             const authorId = authorMap.get(item.author?.name);
 
             if (!categoryId) {
-                console.log(`⚠️ [${index + 1}/${jsonData.items.length}] Пропущена: ${item.title} (категория ${item.catid} не найдена)`);
+                console.log(`⚠️ Пропущена: категория ${item.catid} не найдена`);
                 errorCount++;
+                failedItems.push({
+                    title: item.title,
+                    alias: item.alias,
+                    error: `Категория ${item.catid} не найдена`,
+                    data: { catid: item.catid, categoryMap: Array.from(categoryMap.entries()) }
+                });
                 continue;
             }
 
             if (!authorId) {
-                console.log(`⚠️ [${index + 1}/${jsonData.items.length}] Пропущена: ${item.title} (автор ${item.author?.name} не найден)`);
+                console.log(`⚠️ Пропущена: автор "${item.author?.name}" не найден`);
                 errorCount++;
+                failedItems.push({
+                    title: item.title,
+                    alias: item.alias,
+                    error: `Автор "${item.author?.name}" не найден`,
+                    data: { author: item.author, authorMap: Array.from(authorMap.entries()) }
+                });
                 continue;
             }
 
             try {
+                // Загружаем основное изображение
+                let mainImageId = null;
+                if (item.imageLarge) {
+                    const mainImageUrl = `https://www.orgma.ru${item.imageLarge}`;
+                    console.log(`📸 Основное изображение: ${mainImageUrl}`);
+                    mainImageId = await uploadImageToStrapi(mainImageUrl);
+                } else {
+                    console.log('ℹ️  Основное изображение отсутствует');
+                }
+
                 // Извлекаем ссылки на изображения галереи
                 const galleryUrls = extractGalleryUrls(item.gallery);
-                console.log(`🖼️ [${index + 1}] Найдено изображений в галерее: ${galleryUrls.length}`);
 
                 // Загружаем изображения галереи в Strapi
                 let galleryImageIds = [];
                 if (galleryUrls.length > 0) {
                     galleryImageIds = await uploadGalleryImages(galleryUrls);
-                    console.log(`✅ Загружено изображений в медиатеку: ${galleryImageIds.length}`);
+                }
+
+                // Валидация данных перед созданием
+                const validation = validateNewsData(item, categoryId, authorId, mainImageId, galleryImageIds);
+                if (!validation.isValid) {
+                    console.log(`❌ Ошибка валидации: ${validation.errors.join(', ')}`);
+                    errorCount++;
+                    failedItems.push({
+                        title: item.title,
+                        alias: item.alias,
+                        error: `Ошибка валидации: ${validation.errors.join(', ')}`,
+                        data: { validationErrors: validation.errors }
+                    });
+                    continue;
                 }
 
                 const newsData = {
@@ -318,13 +460,19 @@ async function importNews() {
                         introtext: item.introtext || '',
                         fulltext: item.fulltext || '',
                         created: item.created,
-                        imageurl: `https://www.orgma.ru${item.imageLarge}`,
+                        imageurl: item.imageLarge ? `https://www.orgma.ru${item.imageLarge}` : null,
                         category: categoryId,
                         author: authorId,
-                        gallery: galleryImageIds // Привязываем загруженные изображения
+                        gallery: galleryImageIds
                     }
                 };
 
+                // Добавляем основное изображение если оно загружено
+                if (mainImageId) {
+                    newsData.data.image = mainImageId;
+                }
+
+                console.log(`📤 Отправка данных в Strapi...`);
                 await axios.post(
                     `${STRAPI_URL}/api/news-items`,
                     newsData,
@@ -335,14 +483,30 @@ async function importNews() {
                         }
                     }
                 );
-                console.log(`✅ [${index + 1}/${jsonData.items.length}] ${item.title} (галерея: ${galleryImageIds.length} изображений)`);
+
+                const imageInfo = [];
+                if (mainImageId) imageInfo.push('основное изображение');
+                if (galleryImageIds.length > 0) imageInfo.push(`галерея: ${galleryImageIds.length} изображений`);
+
+                console.log(`✅ Успешно создана: ${item.title} (${imageInfo.join(', ') || 'без изображений'})`);
                 successCount++;
 
                 // Добавляем в множество существующих
                 existingNewsAliases.add(item.alias);
             } catch (error) {
-                console.log(`❌ [${index + 1}/${jsonData.items.length}] Ошибка: ${item.title} - ${error.response?.data?.error?.message || error.message}`);
+                console.log(`❌ Ошибка создания новости "${item.title}":`);
+                logErrorDetails(error, 'createNewsItem');
                 errorCount++;
+
+                failedItems.push({
+                    title: item.title,
+                    alias: item.alias,
+                    error: error.response?.data?.error?.message || error.message,
+                    data: {
+                        status: error.response?.status,
+                        responseData: error.response?.data
+                    }
+                });
             }
 
             // Увеличиваем задержку из-за загрузки изображений
@@ -361,8 +525,36 @@ async function importNews() {
         console.log(`   📁 Категорий: ${categoryMap.size}`);
         console.log(`   👥 Авторов: ${authorMap.size}`);
 
+        // Детальный отчет об ошибках
+        if (failedItems.length > 0) {
+            console.log(`\n🔍 Детальный отчет об ошибках (${failedItems.length}):`);
+            failedItems.forEach((failedItem, index) => {
+                console.log(`\n   ${index + 1}. "${failedItem.title}"`);
+                console.log(`      Alias: ${failedItem.alias}`);
+                console.log(`      Ошибка: ${failedItem.error}`);
+                if (failedItem.data) {
+                    console.log(`      Данные: ${JSON.stringify(failedItem.data, null, 2)}`);
+                }
+            });
+
+            // Сохраняем отчет в файл
+            const report = {
+                timestamp: new Date().toISOString(),
+                results: {
+                    success: successCount,
+                    skipped: skipCount,
+                    errors: errorCount,
+                    total: jsonData.items.length
+                },
+                failedItems: failedItems
+            };
+
+            fs.writeFileSync('./import-error-report.json', JSON.stringify(report, null, 2));
+            console.log(`\n📄 Полный отчет сохранен в import-error-report.json`);
+        }
     } catch (error) {
-        console.error('💥 Критическая ошибка:', error.message);
+        console.error('💥 Критическая ошибка:');
+        logErrorDetails(error, 'importNews');
     }
 }
 

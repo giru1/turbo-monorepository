@@ -1,29 +1,54 @@
 'use client';
-import { Box, Typography, Chip, Card, CardContent, Link } from '@mui/material';
+import { Box, Typography, Chip, Card, CardContent } from '@mui/material';
+import Link from 'next/link';
 import { Author } from '@/types/news';
 
 interface NewsSidebarProps {
     authors: Author[];
     date: string;
+    originalDate?: string;
     tags: string[];
     currentSlug: string;
 }
 
-export default function NewsSidebar({ authors, date, tags, currentSlug }: NewsSidebarProps) {
-    const handleParticipantClick = (authorId: string) => {
-        // Переход на страницу с новостями по участнику
-        window.location.href = `?author=${authorId}`;
+export default function NewsSidebar({ authors, date, originalDate, tags, currentSlug }: NewsSidebarProps) {
+    // Функция для получения даты в правильном формате для URL
+    const getDateForUrl = (): string => {
+        if (originalDate) {
+            return new Date(originalDate).toISOString().split('T')[0];
+        }
+
+        // Пытаемся распарсить отформатированную дату
+        try {
+            const dateParts = date.split(' ');
+            if (dateParts.length === 3) {
+                const day = parseInt(dateParts[0]);
+                const month = getMonthNumber(dateParts[1]);
+                const year = parseInt(dateParts[2]);
+
+                if (month !== -1) {
+                    const dateObj = new Date(year, month, day);
+                    return dateObj.toISOString().split('T')[0];
+                }
+            }
+        } catch (error) {
+            console.error('Ошибка парсинга даты:', error);
+        }
+
+        return new Date().toISOString().split('T')[0];
     };
 
-    const handleDateClick = () => {
-        // Переход на страницу с новостями за эту дату
-        window.location.href = `?date=${encodeURIComponent(date)}`;
+    // Функция для конвертации названия месяца в число
+    const getMonthNumber = (monthName: string): number => {
+        const months: { [key: string]: number } = {
+            'января': 0, 'февраля': 1, 'марта': 2, 'апреля': 3,
+            'мая': 4, 'июня': 5, 'июля': 6, 'августа': 7,
+            'сентября': 8, 'октября': 9, 'ноября': 10, 'декабря': 11
+        };
+        return months[monthName.toLowerCase()] ?? -1;
     };
 
-    const handleTagClick = (tag: string) => {
-        // Переход на страницу с новостями по тегу
-        window.location.href = `?tag=${encodeURIComponent(tag)}`;
-    };
+    const dateForUrl = getDateForUrl();
 
     return (
         <Box sx={{ position: 'sticky', top: 100 }}>
@@ -40,8 +65,9 @@ export default function NewsSidebar({ authors, date, tags, currentSlug }: NewsSi
                                 label={author.name}
                                 variant="outlined"
                                 clickable
-                                onClick={() => handleParticipantClick(author.name)}
-                                sx={{ mb: 1 }}
+                                component={Link}
+                                href={`/?author=${encodeURIComponent(author.name)}`}
+                                sx={{ mb: 1, textDecoration: 'none' }}
                             />
                         ))}
                     </Box>
@@ -58,7 +84,9 @@ export default function NewsSidebar({ authors, date, tags, currentSlug }: NewsSi
                         label={date}
                         variant="outlined"
                         clickable
-                        onClick={handleDateClick}
+                        component={Link}
+                        href={`/?date=${dateForUrl}`}
+                        sx={{ textDecoration: 'none' }}
                     />
                 </CardContent>
             </Card>
@@ -76,8 +104,9 @@ export default function NewsSidebar({ authors, date, tags, currentSlug }: NewsSi
                                 label={tag}
                                 variant="outlined"
                                 clickable
-                                onClick={() => handleTagClick(tag)}
-                                sx={{ mb: 1 }}
+                                component={Link}
+                                href={`/news?tag=${encodeURIComponent(tag)}`}
+                                sx={{ mb: 1, textDecoration: 'none' }}
                             />
                         ))}
                     </Box>

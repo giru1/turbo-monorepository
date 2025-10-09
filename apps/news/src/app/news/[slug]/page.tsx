@@ -60,7 +60,7 @@ export default async function NewsPage({ params }: Props) {
                 month: 'long',
                 year: 'numeric'
             }),
-            image: newsItem.image?.url ? newsItem.image.url : null,
+            image: getMainImage(newsItem), // Используем исправленную функцию
             imageurl: newsItem.imageurl,
             tags: newsItem.tags?.map(tag => tag.name) || [],
             gallery: getNewsGallery(newsItem),
@@ -72,12 +72,13 @@ export default async function NewsPage({ params }: Props) {
             <Container maxWidth="xl" sx={{ py: 4 }}>
                 <Grid container spacing={4}>
                     <Grid size={{xs: 12, md: 4}}>
+
                         <NewsSidebar
                             authors={formattedNewsItem.authors}
                             date={formattedNewsItem.date}
+                            originalDate={newsItem.created} // Передаем оригинальную дату из Strapi
                             tags={formattedNewsItem.tags}
                             currentSlug={slug}
-                            category={formattedNewsItem.category}
                         />
                     </Grid>
                     <Grid size={{xs: 12, md: 8}}>
@@ -86,8 +87,8 @@ export default async function NewsPage({ params }: Props) {
                             desc={formattedNewsItem.desc}
                             date={formattedNewsItem.date}
                             tags={formattedNewsItem.tags}
-                            image={formattedNewsItem.imageurl}
-                            imageurl={formattedNewsItem.imageurl}
+                            image={formattedNewsItem.image} // Используем image вместо imageurl
+                            imageurl={formattedNewsItem.image} // Тоже используем image для consistency
                             gallery={formattedNewsItem.gallery}
                             authors={formattedNewsItem.authors}
                             category={formattedNewsItem.category}
@@ -103,50 +104,65 @@ export default async function NewsPage({ params }: Props) {
     }
 }
 
+// Функция для получения основного изображения
+function getMainImage(newsItem: any): string | null {
+    console.log('📸 Поиск основного изображения для новости:', newsItem.title);
+
+    // 1. Приоритет: локальное изображение из Strapi
+    if (newsItem.image?.url) {
+        const imageUrl = newsItem.image.url;
+        console.log('✅ Основное изображение из Strapi:', imageUrl);
+        return imageUrl;
+    }
+
+    // 2. Резерв: imageurl (внешняя ссылка)
+    if (newsItem.imageurl) {
+        console.log('✅ Основное изображение из imageurl:', newsItem.imageurl);
+        return newsItem.imageurl;
+    }
+
+    // 3. Заглушка если нет изображений
+    console.log('🖼️ Основное изображение не найдено, используется заглушка');
+    return "https://via.placeholder.com/800x400/4f46e5/ffffff?text=Нет+изображения";
+}
+
 // Вспомогательные функции
 function getNewsGallery(newsItem: any): string[] {
-    console.log('🖼️ Поиск изображений для новости:', newsItem.title);
+    console.log('🖼️ Поиск изображений галереи для новости:', newsItem.title);
     console.log('📸 Главное изображение:', newsItem.image);
     console.log('🔗 Image URL:', newsItem.imageurl);
     console.log('🖼️ Галерея:', newsItem.gallery);
 
     const images: string[] = [];
+    const mainImage = getMainImage(newsItem);
 
-    // 1. Сначала проверяем imageurl (внешняя ссылка)
-    if (newsItem.imageurl) {
-        images.push(newsItem.imageurl);
-        console.log('✅ Добавлено изображение из imageurl:', newsItem.imageurl);
-    }
-
-    // 2. Затем проверяем локальное изображение из Strapi
-    if (newsItem.image?.url) {
-        const strapiImageUrl = newsItem.image.url;
-        // Добавляем только если это не дубликат
-        if (!images.includes(strapiImageUrl)) {
-            images.push(strapiImageUrl);
-            console.log('✅ Добавлено изображение из Strapi:', strapiImageUrl);
-        }
-    }
-
-    // 3. Добавляем изображения из галереи
+    // Добавляем изображения из галереи (исключая дубликаты с основным изображением)
     if (newsItem.gallery && Array.isArray(newsItem.gallery)) {
-        newsItem.gallery.forEach((img: any) => {
+        newsItem.gallery.forEach((img: any, index: number) => {
             if (img.url) {
                 const galleryImageUrl = img.url;
-                // Добавляем только если это не дубликат
-                if (!images.includes(galleryImageUrl)) {
+                // Проверяем, что это не дубликат основного изображения
+                if (galleryImageUrl !== mainImage && !images.includes(galleryImageUrl)) {
                     images.push(galleryImageUrl);
-                    console.log('✅ Добавлено изображение из галереи:', galleryImageUrl);
+                    console.log(`✅ Добавлено изображение из галереи [${index}]:`, galleryImageUrl);
+                } else if (galleryImageUrl === mainImage) {
+                    console.log(`⏭️ Пропущено дубликат основного изображения [${index}]`);
                 }
             }
         });
     }
 
-    // 4. Если вообще нет изображений, используем заглушку
+    // Если в галерее нет изображений, но есть основное - используем его
+    if (images.length === 0 && mainImage) {
+        images.push(mainImage);
+        console.log('🔄 Использовано основное изображение в галерее');
+    }
+
+    // Если вообще нет изображений, используем заглушку
     if (images.length === 0) {
         const defaultImage = "https://via.placeholder.com/800x400/4f46e5/ffffff?text=Нет+изображения";
         images.push(defaultImage);
-        console.log('🖼️ Используется изображение-заглушка');
+        console.log('🖼️ Используется изображение-заглушка в галерее');
     }
 
     console.log('🎨 Всего изображений в галерее:', images.length);
