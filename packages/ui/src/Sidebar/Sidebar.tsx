@@ -85,43 +85,38 @@ export default function Sidebar({ sidebarData }: SidebarProps) {
                 </div>
             </nav>
 
-            {/* Бургер-меню */}
+            {/* Бургер-меню на весь экран */}
             <div className={`${styles.burgerMenu} ${isMenuOpen ? styles.menuOpen : ''}`}>
-                <div className={styles.menuHeader}>
-                    <h3 className={styles.menuTitle}>Меню</h3>
-                    <CloseIcon
-                        className={styles.closeIcon}
+                <div className={styles.menuContent}>
+                    {/* Кнопка закрытия */}
+                    <button
+                        className={styles.closeButton}
                         onClick={closeMenu}
-                        sx={{ color: 'white', fontSize: '1.5rem', cursor: 'pointer' }}
-                    />
+                        aria-label="Закрыть меню"
+                    >
+                        <CloseIcon className={styles.closeIcon} />
+                    </button>
+
+                    {/* Навигация меню */}
+                    <nav className={styles.menuNav}>
+                        <ul className={styles.menuList}>
+                            {menuItems.map((item) => (
+                                <li key={item.id} className={styles.menuItem}>
+                                    <a
+                                        href={item.link || '#'}
+                                        className={styles.menuLink}
+                                        onClick={closeMenu}
+                                        target={item.link?.startsWith('http') ? '_blank' : '_self'}
+                                        rel={item.link?.startsWith('http') ? 'noopener noreferrer' : ''}
+                                    >
+                                        {item.title}
+                                    </a>
+                                </li>
+                            ))}
+                        </ul>
+                    </nav>
                 </div>
-
-                <nav className={styles.menuNav}>
-                    <ul className={styles.menuList}>
-                        {menuItems.map((item) => (
-                            <li key={item.id} className={styles.menuItem}>
-                                <a
-                                    href={item.link || '#'}
-                                    className={styles.menuLink}
-                                    onClick={closeMenu}
-                                    target={item.link?.startsWith('http') ? '_blank' : '_self'}
-                                    rel={item.link?.startsWith('http') ? 'noopener noreferrer' : ''}
-                                >
-                                    {item.title}
-                                </a>
-                            </li>
-                        ))}
-                    </ul>
-                </nav>
             </div>
-
-            {/* Overlay для закрытия меню по клику вне его */}
-            {isMenuOpen && (
-                <div
-                    className={styles.menuOverlay}
-                    onClick={closeMenu}
-                />
-            )}
         </>
     );
 }

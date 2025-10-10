@@ -1,0 +1,13 @@
+{
+  "collectionName": "components_shared_menu_dropdowns",
+  "info": {
+    "displayName": "menu-dropdown"
+  },
+  "options": {},
+  "attributes": {
+    "title": {
+      "type": "string"
+    }
+  },
+  "config": {}
+}

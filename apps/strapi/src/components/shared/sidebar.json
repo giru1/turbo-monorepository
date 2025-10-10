@@ -10,9 +10,9 @@
       "component": "shared.link",
       "repeatable": true
     },
-    "BurgerMenu": {
+    "burgermenu2": {
       "type": "component",
-      "component": "shared.link",
+      "component": "shared.menu-item",
       "repeatable": true
     }
   },

@@ -746,31 +746,6 @@ export interface ApiTagTag extends Struct.CollectionTypeSchema {
   };
 }
 
-export interface ApiWerWer extends Struct.SingleTypeSchema {
-  collectionName: 'wers';
-  info: {
-    displayName: 'wer';
-    pluralName: 'wers';
-    singularName: 'wer';
-  };
-  options: {
-    draftAndPublish: true;
-  };
-  attributes: {
-    createdAt: Schema.Attribute.DateTime;
-    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
-      Schema.Attribute.Private;
-    Head: Schema.Attribute.String;
-    locale: Schema.Attribute.String & Schema.Attribute.Private;
-    localizations: Schema.Attribute.Relation<'oneToMany', 'api::wer.wer'> &
-      Schema.Attribute.Private;
-    publishedAt: Schema.Attribute.DateTime;
-    updatedAt: Schema.Attribute.DateTime;
-    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
-      Schema.Attribute.Private;
-  };
-}
-
 export interface PluginContentReleasesRelease
   extends Struct.CollectionTypeSchema {
   collectionName: 'strapi_releases';
@@ -1291,7 +1266,6 @@ declare module '@strapi/strapi' {
       'api::sdo-site.sdo-site': ApiSdoSiteSdoSite;
       'api::site.site': ApiSiteSite;
       'api::tag.tag': ApiTagTag;
-      'api::wer.wer': ApiWerWer;
       'plugin::content-releases.release': PluginContentReleasesRelease;
       'plugin::content-releases.release-action': PluginContentReleasesReleaseAction;
       'plugin::i18n.locale': PluginI18NLocale;

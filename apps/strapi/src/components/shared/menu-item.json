@@ -1,0 +1,32 @@
+{
+  "collectionName": "components_shared_menu_items",
+  "info": {
+    "displayName": "menu-item"
+  },
+  "options": {},
+  "attributes": {
+    "title": {
+      "type": "string"
+    },
+    "link": {
+      "type": "string"
+    },
+    "icon": {
+      "type": "media",
+      "multiple": true,
+      "allowedTypes": [
+        "images",
+        "files",
+        "videos",
+        "audios"
+      ]
+    },
+    "MenuItem2": {
+      "type": "component",
+      "component": "shared.link",
+      "repeatable": true,
+      "max": 7
+    }
+  },
+  "config": {}
+}

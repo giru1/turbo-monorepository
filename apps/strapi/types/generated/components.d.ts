@@ -99,6 +99,38 @@ export interface SharedMedia extends Struct.ComponentSchema {
   };
 }
 
+export interface SharedMenuDropdown extends Struct.ComponentSchema {
+  collectionName: 'components_shared_menu_dropdowns';
+  info: {
+    displayName: 'menu-dropdown';
+  };
+  attributes: {
+    title: Schema.Attribute.String;
+  };
+}
+
+export interface SharedMenuItem extends Struct.ComponentSchema {
+  collectionName: 'components_shared_menu_items';
+  info: {
+    displayName: 'menu-item';
+  };
+  attributes: {
+    icon: Schema.Attribute.Media<
+      'images' | 'files' | 'videos' | 'audios',
+      true
+    >;
+    link: Schema.Attribute.String;
+    MenuItem2: Schema.Attribute.Component<'shared.link', true> &
+      Schema.Attribute.SetMinMax<
+        {
+          max: 7;
+        },
+        number
+      >;
+    title: Schema.Attribute.String;
+  };
+}
+
 export interface SharedQuote extends Struct.ComponentSchema {
   collectionName: 'components_shared_quotes';
   info: {
@@ -144,7 +176,7 @@ export interface SharedSidebar extends Struct.ComponentSchema {
     displayName: 'Sidebar';
   };
   attributes: {
-    BurgerMenu: Schema.Attribute.Component<'shared.link', true>;
+    burgermenu2: Schema.Attribute.Component<'shared.menu-item', true>;
     SidebarMenu: Schema.Attribute.Component<'shared.link', true>;
   };
 }
@@ -173,6 +205,8 @@ declare module '@strapi/strapi' {
       'shared.left-description': SharedLeftDescription;
       'shared.link': SharedLink;
       'shared.media': SharedMedia;
+      'shared.menu-dropdown': SharedMenuDropdown;
+      'shared.menu-item': SharedMenuItem;
       'shared.quote': SharedQuote;
       'shared.rich-text': SharedRichText;
       'shared.seo': SharedSeo;

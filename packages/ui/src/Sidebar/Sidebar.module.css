@@ -1,94 +1,7 @@
 .sidebar {
     width: 95px;
     height: 100vh;
-    background-color: #89BFE9;
-    position: fixed;
-    left: 0;
-    top: 0;
-    z-index: 1000;
-    transition: all 0.3s;
-    overflow-x: hidden;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-}
-
-@media (max-width: 600px) {
-    .sidebar {
-        width: 50px;
-    }
-}
-
-.sidebar img {
-    width: 100%;
-    max-width: 30px;
-    height: auto;
-    display: block;
-}
-
-@media (max-width: 600px) {
-    .sidebar img {
-        width: 50px;
-        max-width: 20px;
-    }
-}
-
-.sidebarIcons {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    width: 100%;
-    margin-top: 30px;
-}
-
-.sidebarIconGroup {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    margin-bottom: 50px;
-    width: 100%;
-}
-
-.sidebarIconGroup img {
-    margin-bottom: 30px;
-}
-
-.sidebarIcon {
-    color: white;
-    font-size: 1.5rem;
-    margin: 12px 0;
-    cursor: pointer;
-    width: 100%;
-    text-align: center;
-}
-
-.burgerIcon {
-    margin-top: 15px;
-}
-
-.languageSwitcher {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    font-size: 0.9rem;
-    color: white;
-    margin-top: 5px;
-}
-
-.languageOption {
-    cursor: pointer;
-    margin: 2px 0;
-}
-
-.active {
-    font-weight: bold;
-}
-
-
-.sidebar {
-    width: 95px;
-    height: 100vh;
-    background-color: #89BFE9;
+    background-color: var(--text-color);
     position: fixed;
     left: 0;
     top: 0;
@@ -176,99 +89,151 @@
     font-weight: bold;
 }
 
-/* Бургер-меню */
+/* Бургер-меню на весь экран */
 .burgerMenu {
     position: fixed;
-    left: -300px;
     top: 0;
-    width: 300px;
+    left: 0;
+    width: 100vw;
     height: 100vh;
-    background-color: #2c3e50;
+    background-color: var(--text-color);
     z-index: 1001;
-    transition: left 0.3s ease-in-out;
+    transform: translateX(-100%);
+    transition: transform 0.3s ease-in-out;
     display: flex;
     flex-direction: column;
-    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.3);
+    overflow-y: auto;
 }
 
 .menuOpen {
-    left: 95px;
+    transform: translateX(0);
 }
 
-@media (max-width: 600px) {
-    .menuOpen {
-        left: 50px;
-    }
-}
-
-.menuHeader {
+/* Контейнер для контента меню */
+.menuContent {
     display: flex;
-    justify-content: space-between;
-    align-items: center;
+    flex-direction: column;
+    height: 100%;
     padding: 20px;
-    background-color: #34495e;
-    border-bottom: 1px solid #4a6572;
+    position: relative;
 }
 
-.menuTitle {
-    color: white;
-    margin: 0;
-    font-size: 1.2rem;
-    font-weight: 600;
+/* Кнопка закрытия в правом верхнем углу */
+.closeButton {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    z-index: 1002;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    transition: background-color 0.2s;
+}
+
+.closeButton:hover {
+    background-color: rgba(255, 255, 255, 0.1);
 }
 
 .closeIcon {
-    cursor: pointer;
-    transition: color 0.2s;
+    color: white;
+    font-size: 1.8rem;
 }
 
-.closeIcon:hover {
-    color: #ecf0f1;
-}
-
+/* Навигация меню */
 .menuNav {
     flex: 1;
-    padding: 20px 0;
-    overflow-y: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 60px 20px 20px;
 }
 
 .menuList {
     list-style: none;
     padding: 0;
     margin: 0;
+    width: 100%;
+    max-width: 500px;
 }
 
 .menuItem {
-    border-bottom: 1px solid #4a6572;
+    margin-bottom: 15px;
+    text-align: center;
 }
 
 .menuItem:last-child {
-    border-bottom: none;
+    margin-bottom: 0;
 }
 
 .menuLink {
     display: block;
-    padding: 15px 20px;
-    color: #ecf0f1;
+    padding: 20px;
+    color: white;
     text-decoration: none;
-    transition: all 0.2s;
-    font-size: 1rem;
+    font-size: 1.4rem;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    border-radius: 8px;
+    background-color: rgba(255, 255, 255, 0.05);
+    border: 2px solid transparent;
 }
 
 .menuLink:hover {
-    background-color: #34495e;
-    color: #89BFE9;
-    padding-left: 25px;
+    background-color: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.3);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
 }
 
-/* Overlay */
+/* Overlay не нужен, так как меню на весь экран */
 .menuOverlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: rgba(0, 0, 0, 0.5);
-    z-index: 999;
-    cursor: pointer;
+    display: none;
+}
+
+/* Адаптивность для мобильных */
+@media (max-width: 768px) {
+    .menuContent {
+        padding: 15px;
+    }
+
+    .closeButton {
+        top: 15px;
+        right: 15px;
+        width: 35px;
+        height: 35px;
+    }
+
+    .closeIcon {
+        font-size: 1.5rem;
+    }
+
+    .menuNav {
+        padding: 50px 15px 15px;
+    }
+
+    .menuLink {
+        padding: 18px;
+        font-size: 1.2rem;
+    }
+
+    .menuItem {
+        margin-bottom: 12px;
+    }
+}
+
+@media (max-width: 480px) {
+    .menuLink {
+        padding: 16px;
+        font-size: 1.1rem;
+    }
+
+    .menuItem {
+        margin-bottom: 10px;
+    }
 }
