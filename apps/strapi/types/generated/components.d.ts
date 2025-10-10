@@ -82,6 +82,7 @@ export interface SharedLink extends Struct.ComponentSchema {
     displayName: 'Link';
   };
   attributes: {
+    icon: Schema.Attribute.Media<'images' | 'files' | 'videos' | 'audios'>;
     link: Schema.Attribute.String;
     title: Schema.Attribute.String;
   };
@@ -143,7 +144,8 @@ export interface SharedSidebar extends Struct.ComponentSchema {
     displayName: 'Sidebar';
   };
   attributes: {
-    Link: Schema.Attribute.Component<'shared.link', true>;
+    BurgerMenu: Schema.Attribute.Component<'shared.link', true>;
+    SidebarMenu: Schema.Attribute.Component<'shared.link', true>;
   };
 }
 

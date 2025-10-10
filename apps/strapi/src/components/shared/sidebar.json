@@ -5,7 +5,12 @@
   },
   "options": {},
   "attributes": {
-    "Link": {
+    "SidebarMenu": {
+      "type": "component",
+      "component": "shared.link",
+      "repeatable": true
+    },
+    "BurgerMenu": {
       "type": "component",
       "component": "shared.link",
       "repeatable": true
