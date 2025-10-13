@@ -6,7 +6,8 @@
     "dev": "next dev --turbopack",
     "build": "next build --turbopack",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "dev-strict": "NODE_OPTIONS='--inspect' next dev --turbo"
   },
   "dependencies": {
     "@mui/icons-material": "^7.3.2",

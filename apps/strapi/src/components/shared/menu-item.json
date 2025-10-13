@@ -21,11 +21,10 @@
         "audios"
       ]
     },
-    "MenuItem2": {
+    "MenuItems": {
       "type": "component",
       "component": "shared.link",
-      "repeatable": true,
-      "max": 7
+      "repeatable": true
     }
   },
   "config": {}

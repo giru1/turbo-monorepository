@@ -1,6 +1,7 @@
 export { default as Header } from "./Header/Header";
 export { default as HeaderRight } from "./Header/HeaderRight";
 export { default as Sidebar } from "./Sidebar/Sidebar";
+export { getSidebarData  } from "./Sidebar/SidebarApi";
 // export { default as HeaderMain } from "./HeaderMain/HeaderMain";
 export { default as Footer } from "./Footer/Footer";
 export { getFooterData } from "./Footer/FooterApi";

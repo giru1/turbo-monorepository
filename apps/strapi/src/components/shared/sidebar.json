@@ -9,11 +9,6 @@
       "type": "component",
       "component": "shared.link",
       "repeatable": true
-    },
-    "burgermenu2": {
-      "type": "component",
-      "component": "shared.menu-item",
-      "repeatable": true
     }
   },
   "config": {}

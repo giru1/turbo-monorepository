@@ -1,14 +1,13 @@
-// packages/ui/src/Sidebar/SidebarApi.ts
 export async function getSidebarData() {
     const API_URL = process.env.STRAPI_API_URL || "http://127.0.0.1:1337";
 
     try {
         const response = await fetch(
-            `${API_URL}/api/Sites?populate[Sidebar][populate][BurgerMenu][populate]=*`
+            `${API_URL}/api/Sites?populate[Menu][populate]=*`
         );
 
         if (!response.ok) {
-            throw new Error(`Ошибка HTTP: ${response.status}`);
+            throw new Error(`Ошибка HTTP Sidebar: ${response.status}`);
         }
 
         const json = await response.json();
@@ -21,31 +20,14 @@ export async function getSidebarData() {
 
         const siteData = json.data[0];
 
-        // Проверяем разные возможные структуры
-        const sidebar = siteData.Sidebar;
+        // Получаем меню из ответа - правильный путь
+        const menuItems = siteData.Menu || [];
 
-        if (!sidebar) {
-            console.log('❌ Sidebar не найден в ответе');
-            return { burgerMenu: [] };
-        }
+        console.log('🍔 Menu items с подменю:', menuItems);
 
-        console.log('📁 Структура Sidebar:', sidebar);
-
-        // Пробуем разные варианты получения BurgerMenu
-        let burgerMenu = [];
-
-        if (sidebar.BurgerMenu && Array.isArray(sidebar.BurgerMenu)) {
-            burgerMenu = sidebar.BurgerMenu;
-        } else if (sidebar.attributes?.BurgerMenu) {
-            burgerMenu = sidebar.attributes.BurgerMenu;
-        } else if (sidebar.data?.attributes?.BurgerMenu) {
-            burgerMenu = sidebar.data.attributes.BurgerMenu;
-        }
-
-        console.log('🍔 BurgerMenu items:', burgerMenu);
-
+        // Возвращаем данные в правильном формате
         return {
-            burgerMenu: burgerMenu || []
+            burgerMenu: menuItems
         };
     } catch (error) {
         console.error("Ошибка при получении данных сайдбара:", error);

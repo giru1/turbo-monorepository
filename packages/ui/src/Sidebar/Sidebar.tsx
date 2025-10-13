@@ -4,7 +4,7 @@ import Image from 'next/image'
 import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye';
 import MenuIcon from '@mui/icons-material/Menu';
 import CloseIcon from '@mui/icons-material/Close';
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 
 // Импортируем все изображения
 import mfcIcon from './icons/mfc.svg';
@@ -21,6 +21,7 @@ interface MenuItem {
     title: string;
     link: string | null;
     icon: string | null;
+    MenuItems?: MenuItem[];
 }
 
 interface SidebarProps {
@@ -31,6 +32,9 @@ interface SidebarProps {
 
 export default function Sidebar({ sidebarData }: SidebarProps) {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
+    const [hoveredItem, setHoveredItem] = useState<number | null>(null);
+    const menuRef = useRef<HTMLDivElement>(null);
+    const hoverTimeoutRef = useRef<NodeJS.Timeout>();
 
     const toggleMenu = () => {
         setIsMenuOpen(!isMenuOpen);
@@ -38,15 +42,49 @@ export default function Sidebar({ sidebarData }: SidebarProps) {
 
     const closeMenu = () => {
         setIsMenuOpen(false);
+        setHoveredItem(null);
     };
 
-    // Если данные не загружены, показываем базовый сайдбар
+    const handleMouseEnter = (itemId: number) => {
+        if (hoverTimeoutRef.current) {
+            clearTimeout(hoverTimeoutRef.current);
+        }
+        setHoveredItem(itemId);
+    };
+
+    const handleMouseLeave = () => {
+        hoverTimeoutRef.current = setTimeout(() => {
+            setHoveredItem(null);
+        }, 150);
+    };
+
+    const handleSubMenuMouseEnter = () => {
+        if (hoverTimeoutRef.current) {
+            clearTimeout(hoverTimeoutRef.current);
+        }
+    };
+
+    const handleSubMenuMouseLeave = () => {
+        handleMouseLeave();
+    };
+
+    useEffect(() => {
+        return () => {
+            if (hoverTimeoutRef.current) {
+                clearTimeout(hoverTimeoutRef.current);
+            }
+        };
+    }, []);
+
     const menuItems = sidebarData?.burgerMenu || [];
+
+    // Для отладки
+    console.log('Menu Items in Sidebar:', menuItems);
 
     return (
         <>
             {/* Основной сайдбар */}
-            <nav className={styles.sidebar} id="sidebar">
+            <nav className={`${styles.sidebar} ${isMenuOpen ? styles.isMenuOpen : ''}`} id="sidebar">
                 {/* Бургер-иконка */}
                 <div className={styles.burgerIcon} onClick={toggleMenu}>
                     {isMenuOpen ? (
@@ -87,8 +125,7 @@ export default function Sidebar({ sidebarData }: SidebarProps) {
 
             {/* Бургер-меню на весь экран */}
             <div className={`${styles.burgerMenu} ${isMenuOpen ? styles.menuOpen : ''}`}>
-                <div className={styles.menuContent}>
-                    {/* Кнопка закрытия */}
+                <div className={styles.menuContent} ref={menuRef}>
                     <button
                         className={styles.closeButton}
                         onClick={closeMenu}
@@ -97,20 +134,54 @@ export default function Sidebar({ sidebarData }: SidebarProps) {
                         <CloseIcon className={styles.closeIcon} />
                     </button>
 
-                    {/* Навигация меню */}
                     <nav className={styles.menuNav}>
                         <ul className={styles.menuList}>
                             {menuItems.map((item) => (
-                                <li key={item.id} className={styles.menuItem}>
-                                    <a
-                                        href={item.link || '#'}
-                                        className={styles.menuLink}
-                                        onClick={closeMenu}
-                                        target={item.link?.startsWith('http') ? '_blank' : '_self'}
-                                        rel={item.link?.startsWith('http') ? 'noopener noreferrer' : ''}
-                                    >
-                                        {item.title}
-                                    </a>
+                                <li
+                                    key={item.id}
+                                    className={styles.menuItem}
+                                    onMouseEnter={() => item.MenuItems && item.MenuItems.length > 0 && handleMouseEnter(item.id)}
+                                    onMouseLeave={handleMouseLeave}
+                                >
+                                    <div className={styles.menuItemContent}>
+                                        <a
+                                            href={item.link || '#'}
+                                            className={styles.menuLink}
+                                            onClick={(e) => {
+                                                if (!item.MenuItems || item.MenuItems.length === 0) {
+                                                    closeMenu();
+                                                } else {
+                                                    e.preventDefault();
+                                                }
+                                            }}
+                                        >
+                                            {item.title}
+                                        </a>
+                                        {item.MenuItems && item.MenuItems.length > 0 && (
+                                            <span className={styles.arrow}>▼</span>
+                                        )}
+                                    </div>
+
+                                    {/* Подменю */}
+                                    {item.MenuItems && item.MenuItems.length > 0 && hoveredItem === item.id && (
+                                        <ul
+                                            className={styles.subMenu}
+                                            onMouseEnter={handleSubMenuMouseEnter}
+                                            onMouseLeave={handleSubMenuMouseLeave}
+                                        >
+                                            {item.MenuItems.map((subItem) => (
+                                                <li key={subItem.id} className={styles.subMenuItem}>
+                                                    <a
+                                                        href={subItem.link || '#'}
+                                                        className={styles.subMenuLink}
+                                                        onClick={closeMenu}
+                                                    >
+                                                        {subItem.title}
+                                                    </a>
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    )}
                                 </li>
                             ))}
                         </ul>

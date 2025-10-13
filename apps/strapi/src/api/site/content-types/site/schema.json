@@ -25,6 +25,11 @@
       "type": "component",
       "component": "shared.header-left",
       "repeatable": false
+    },
+    "Menu": {
+      "type": "component",
+      "component": "shared.menu-item",
+      "repeatable": true
     }
   }
 }

@@ -1,16 +1,20 @@
 .sidebar {
     width: 95px;
     height: 100vh;
-    background-color: var(--text-color);
+    background-color: var(--text-color-w);
     position: fixed;
     left: 0;
     top: 0;
-    z-index: 1000;
+    z-index: 1044;
     transition: all 0.3s;
     overflow-x: hidden;
     display: flex;
     flex-direction: column;
     align-items: center;
+}
+
+.sidebar.isMenuOpen {
+    background-color: var(--text-color);
 }
 
 @media (max-width: 600px) {
@@ -149,9 +153,8 @@
 .menuNav {
     flex: 1;
     display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 60px 20px 20px;
+    padding: 20px 20px 20px;
+    margin-left: 150px;
 }
 
 .menuList {
@@ -164,31 +167,105 @@
 
 .menuItem {
     margin-bottom: 15px;
-    text-align: center;
+    position: relative;
 }
 
 .menuItem:last-child {
     margin-bottom: 0;
 }
 
+.menuItemContent {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: relative;
+}
+
 .menuLink {
     display: block;
-    padding: 20px;
-    color: white;
+    text-transform: uppercase;
+    color: #81B9E4;
     text-decoration: none;
     font-size: 1.4rem;
-    font-weight: 500;
+    font-weight: 700;
     transition: all 0.3s ease;
-    border-radius: 8px;
-    background-color: rgba(255, 255, 255, 0.05);
-    border: 2px solid transparent;
+    padding: 10px 0;
+    flex: 1;
 }
 
 .menuLink:hover {
-    background-color: rgba(255, 255, 255, 0.1);
-    border-color: rgba(255, 255, 255, 0.3);
-    transform: translateY(-2px);
+    text-decoration: underline;
+    color: #a0d0ff;
+}
+
+/* Стрелка для пунктов с подменю */
+.arrow {
+    color: #81B9E4;
+    font-size: 0.8rem;
+    margin-left: 15px;
+    transition: transform 0.3s ease;
+    padding: 5px;
+}
+
+.menuItem:hover .arrow {
+    transform: rotate(180deg);
+}
+
+/* Подменю справа */
+.subMenu {
+    list-style: none;
+    margin: 0;
+    background-color: rgba(255, 255, 255, 0.05);
+    border-radius: 6px;
+    padding: 15px;
+    border-left: 2px solid #81B9E4;
+    animation: fadeInRight 0.2s ease;
+    position: absolute;
+    left: 100%;
+    top: 0;
+    margin-left: 20px;
+    z-index: 1003;
+    min-width: 300px;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.subMenuItem {
+    margin-bottom: 8px;
+}
+
+.subMenuItem:last-child {
+    margin-bottom: 0;
+}
+
+.subMenuLink {
+    display: block;
+    padding: 10px 15px;
+    color: rgba(255, 255, 255, 0.9);
+    text-decoration: none;
+    font-size: 1.1rem;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    border-radius: 4px;
+    white-space: nowrap;
+}
+
+.subMenuLink:hover {
+    background-color: rgba(255, 255, 255, 0.15);
+    color: white;
+    text-decoration: none;
+    transform: translateX(5px);
+}
+
+/* Анимация появления подменю справа */
+@keyframes fadeInRight {
+    from {
+        opacity: 0;
+        transform: translateX(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
 }
 
 /* Overlay не нужен, так как меню на весь экран */
@@ -215,25 +292,54 @@
 
     .menuNav {
         padding: 50px 15px 15px;
+        margin-left: 0;
     }
 
     .menuLink {
-        padding: 18px;
         font-size: 1.2rem;
+        padding: 8px 0;
     }
 
-    .menuItem {
-        margin-bottom: 12px;
+    /* На мобильных подменю показываем под пунктом */
+    .subMenu {
+        position: static;
+        left: auto;
+        top: auto;
+        margin-left: 0;
+        margin-top: 10px;
+        min-width: auto;
+        width: 100%;
+        animation: fadeIn 0.2s ease;
+    }
+
+    .subMenuLink {
+        padding: 8px 12px;
+        font-size: 1rem;
     }
 }
 
 @media (max-width: 480px) {
     .menuLink {
-        padding: 16px;
         font-size: 1.1rem;
     }
 
     .menuItem {
         margin-bottom: 10px;
+    }
+
+    .subMenu {
+        min-width: auto;
+    }
+}
+
+/* Анимация для мобильных */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-5px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
     }
 }

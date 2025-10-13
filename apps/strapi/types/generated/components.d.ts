@@ -120,13 +120,7 @@ export interface SharedMenuItem extends Struct.ComponentSchema {
       true
     >;
     link: Schema.Attribute.String;
-    MenuItem2: Schema.Attribute.Component<'shared.link', true> &
-      Schema.Attribute.SetMinMax<
-        {
-          max: 7;
-        },
-        number
-      >;
+    MenuItems: Schema.Attribute.Component<'shared.link', true>;
     title: Schema.Attribute.String;
   };
 }
@@ -176,7 +170,6 @@ export interface SharedSidebar extends Struct.ComponentSchema {
     displayName: 'Sidebar';
   };
   attributes: {
-    burgermenu2: Schema.Attribute.Component<'shared.menu-item', true>;
     SidebarMenu: Schema.Attribute.Component<'shared.link', true>;
   };
 }

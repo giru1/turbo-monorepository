@@ -706,6 +706,7 @@ export interface ApiSiteSite extends Struct.CollectionTypeSchema {
     locale: Schema.Attribute.String & Schema.Attribute.Private;
     localizations: Schema.Attribute.Relation<'oneToMany', 'api::site.site'> &
       Schema.Attribute.Private;
+    Menu: Schema.Attribute.Component<'shared.menu-item', true>;
     publishedAt: Schema.Attribute.DateTime;
     Sidebar: Schema.Attribute.Component<'shared.sidebar', false>;
     updatedAt: Schema.Attribute.DateTime;

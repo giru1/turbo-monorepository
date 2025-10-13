@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import "@repo/ui/global.css";
 import "./globals.css";
-import { Header, HeaderRight, Footer, Head, getFooterData, Sidebar } from "@repo/ui";
+import { Header, HeaderRight, Footer, Head, getFooterData, Sidebar, getSidebarData  } from "@repo/ui";
 
 import React from "react";
 
@@ -15,35 +15,38 @@ export const metadata: Metadata = {
 
 
 export default async function RootLayout({children}: Readonly<{ children: React.ReactNode; }>) {
-  const footerData = await getFooterData();
-  return (
-      <html lang="en" suppressHydrationWarning>
-      <Head/>
-      <body>
-      <Sidebar/>
-      <div className="main-container">
+    const [footerData, sidebarData] = await Promise.all([
+        getFooterData(),
+        getSidebarData()
+    ]);
+    return (
+        <html lang="en" suppressHydrationWarning>
+        <Head/>
+        <body>
+        {/* Передаем данные в Sidebar */}
+        <Sidebar sidebarData={sidebarData}/>
+        <div className="main-container">
 
-        <Container maxWidth="xl" sx={{marginBottom: 4, marginTop: { xs: 3, md: 5, lg: 10 }}}>
-          <header className="header">
-            <Grid container>
-              <Grid size={{xs: 12, md: 6, lg: 6, xl: 7}}>
-                <Header/>
-              </Grid>
-              <Grid size={{xs: 12, md: 6, lg: 6, xl: 5}}>
-                <HeaderRight
-                    title={"Новости и события"}
-                    description={"Новости и событияНовости и событияНовости и событияНовости и событияНовости и событияНовости и событияНовости и событияНовости и событияНовости и события"}
-                />
-              </Grid>
-            </Grid>
-          </header>
-        </Container>
+            <Container maxWidth="xl" sx={{marginBottom: 4, marginTop: { xs: 3, md: 5, lg: 10 }}}>
+                <header className="header">
+                    <Grid container>
+                        <Grid size={{xs: 12, md: 6, lg: 6, xl: 7}}>
+                            <Header/>
+                        </Grid>
+                        <Grid size={{xs: 12, md: 6, lg: 6, xl: 5}}>
+                            <HeaderRight
+                                title={"Новости и события"}
+                                description={"Новости и событияНовости и событияНовости и событияНовости и событияНовости и событияНовости и событияНовости и событияНовости и событияНовости и события"}
+                            />
+                        </Grid>
+                    </Grid>
+                </header>
+            </Container>
 
-
-        {children}
-        <Footer footerData={footerData} />
-      </div>
-      </body>
-      </html>
-  );
+            {children}
+            <Footer footerData={footerData} />
+        </div>
+        </body>
+        </html>
+    );
 }

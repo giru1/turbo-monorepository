@@ -391,7 +391,6 @@ export default function NewsListPage() {
                                     category: category || '',
                                     tag: tag || '',
                                     author: author || '',
-                                    specificDate: date || '',
                                 }}
                             />
                         </div>

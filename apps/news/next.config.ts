@@ -10,7 +10,21 @@ const nextConfig = {
         missingSuspenseWithCSRBailout: false,
     },
     transpilePackages: ['@repo/ui'],
-
+    // Показывать подробные ошибки в dev режиме
+    eslint: {
+        // В dev режиме показывать ошибки как предупреждения
+        ignoreDuringBuilds: false,
+    },
+    typescript: {
+        // В dev режиме проверять типы строже
+        ignoreBuildErrors: false,
+    },
+    // Включаем подробные ошибки
+    logging: {
+        fetches: {
+            fullUrl: true,
+        },
+    },
 }
 
 
