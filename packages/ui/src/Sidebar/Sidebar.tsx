@@ -5,6 +5,7 @@ import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye';
 import MenuIcon from '@mui/icons-material/Menu';
 import CloseIcon from '@mui/icons-material/Close';
 import { useState, useRef, useEffect } from 'react';
+import Footer from '../Footer/Footer';
 
 // Импортируем все изображения
 import mfcIcon from './icons/mfc.svg';
@@ -20,6 +21,7 @@ interface MenuItem {
     id: number;
     title: string;
     link: string | null;
+    Margin: boolean | null; // Добавляем поле Margin
     icon: string | null;
     MenuItems?: MenuItem[];
 }
@@ -28,9 +30,10 @@ interface SidebarProps {
     sidebarData: {
         burgerMenu: MenuItem[];
     } | null;
+    footerData?: any;
 }
 
-export default function Sidebar({ sidebarData }: SidebarProps) {
+export default function Sidebar({ sidebarData, footerData }: SidebarProps) {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [hoveredItem, setHoveredItem] = useState<number | null>(null);
     const menuRef = useRef<HTMLDivElement>(null);
@@ -78,9 +81,6 @@ export default function Sidebar({ sidebarData }: SidebarProps) {
 
     const menuItems = sidebarData?.burgerMenu || [];
 
-    // Для отладки
-    console.log('Menu Items in Sidebar:', menuItems);
-
     return (
         <>
             {/* Основной сайдбар */}
@@ -126,66 +126,68 @@ export default function Sidebar({ sidebarData }: SidebarProps) {
             {/* Бургер-меню на весь экран */}
             <div className={`${styles.burgerMenu} ${isMenuOpen ? styles.menuOpen : ''}`}>
                 <div className={styles.menuContent} ref={menuRef}>
-                    <button
-                        className={styles.closeButton}
-                        onClick={closeMenu}
-                        aria-label="Закрыть меню"
-                    >
-                        <CloseIcon className={styles.closeIcon} />
-                    </button>
+                    {/* Основной контент меню */}
+                    <div className={styles.menuMainContent}>
+                        <nav className={styles.menuNav}>
+                            <ul className={styles.menuList}>
+                                {menuItems.map((item) => (
+                                    <li
+                                        key={item.id}
+                                        className={`${styles.menuItem} ${item.Margin ? styles.menuItemWithMargin : ''}`}
+                                        onMouseEnter={() => item.MenuItems && item.MenuItems.length > 0 && handleMouseEnter(item.id)}
+                                        onMouseLeave={handleMouseLeave}
+                                    >
+                                        <div className={styles.menuItemContent}>
+                                            <a
+                                                href={item.link || '#'}
+                                                className={styles.menuLink}
+                                                onClick={(e) => {
+                                                    if (!item.MenuItems || item.MenuItems.length === 0) {
+                                                        closeMenu();
+                                                    } else {
+                                                        e.preventDefault();
+                                                    }
+                                                }}
+                                            >
+                                                {item.title}
+                                            </a>
+                                            {item.MenuItems && item.MenuItems.length > 0 && (
+                                                <span className={styles.arrow}>•</span>
+                                            )}
+                                        </div>
 
-                    <nav className={styles.menuNav}>
-                        <ul className={styles.menuList}>
-                            {menuItems.map((item) => (
-                                <li
-                                    key={item.id}
-                                    className={styles.menuItem}
-                                    onMouseEnter={() => item.MenuItems && item.MenuItems.length > 0 && handleMouseEnter(item.id)}
-                                    onMouseLeave={handleMouseLeave}
-                                >
-                                    <div className={styles.menuItemContent}>
-                                        <a
-                                            href={item.link || '#'}
-                                            className={styles.menuLink}
-                                            onClick={(e) => {
-                                                if (!item.MenuItems || item.MenuItems.length === 0) {
-                                                    closeMenu();
-                                                } else {
-                                                    e.preventDefault();
-                                                }
-                                            }}
-                                        >
-                                            {item.title}
-                                        </a>
-                                        {item.MenuItems && item.MenuItems.length > 0 && (
-                                            <span className={styles.arrow}>▼</span>
+                                        {/* Подменю */}
+                                        {item.MenuItems && item.MenuItems.length > 0 && hoveredItem === item.id && (
+                                            <ul
+                                                className={styles.subMenu}
+                                                onMouseEnter={handleSubMenuMouseEnter}
+                                                onMouseLeave={handleSubMenuMouseLeave}
+                                            >
+                                                {item.MenuItems.map((subItem) => (
+                                                    <li key={subItem.id} className={styles.subMenuItem}>
+                                                        <a
+                                                            href={subItem.link || '#'}
+                                                            className={styles.subMenuLink}
+                                                            onClick={closeMenu}
+                                                        >
+                                                            {subItem.title}
+                                                        </a>
+                                                    </li>
+                                                ))}
+                                            </ul>
                                         )}
-                                    </div>
+                                    </li>
+                                ))}
+                            </ul>
+                        </nav>
+                    </div>
 
-                                    {/* Подменю */}
-                                    {item.MenuItems && item.MenuItems.length > 0 && hoveredItem === item.id && (
-                                        <ul
-                                            className={styles.subMenu}
-                                            onMouseEnter={handleSubMenuMouseEnter}
-                                            onMouseLeave={handleSubMenuMouseLeave}
-                                        >
-                                            {item.MenuItems.map((subItem) => (
-                                                <li key={subItem.id} className={styles.subMenuItem}>
-                                                    <a
-                                                        href={subItem.link || '#'}
-                                                        className={styles.subMenuLink}
-                                                        onClick={closeMenu}
-                                                    >
-                                                        {subItem.title}
-                                                    </a>
-                                                </li>
-                                            ))}
-                                        </ul>
-                                    )}
-                                </li>
-                            ))}
-                        </ul>
-                    </nav>
+                    {/* Футер в меню */}
+                    {footerData && (
+                        <div className={styles.menuFooter}>
+                            <Footer footerData={footerData} />
+                        </div>
+                    )}
                 </div>
             </div>
         </>

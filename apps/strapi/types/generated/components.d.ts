@@ -104,9 +104,7 @@ export interface SharedMenuDropdown extends Struct.ComponentSchema {
   info: {
     displayName: 'menu-dropdown';
   };
-  attributes: {
-    title: Schema.Attribute.String;
-  };
+  attributes: {};
 }
 
 export interface SharedMenuItem extends Struct.ComponentSchema {
@@ -120,6 +118,7 @@ export interface SharedMenuItem extends Struct.ComponentSchema {
       true
     >;
     link: Schema.Attribute.String;
+    Margin: Schema.Attribute.Boolean;
     MenuItems: Schema.Attribute.Component<'shared.link', true>;
     title: Schema.Attribute.String;
   };

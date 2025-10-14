@@ -11,6 +11,9 @@
     "link": {
       "type": "string"
     },
+    "Margin": {
+      "type": "boolean"
+    },
     "icon": {
       "type": "media",
       "multiple": true,

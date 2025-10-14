@@ -24,7 +24,7 @@ export default async function RootLayout({children}: Readonly<{ children: React.
         <Head/>
         <body>
         {/* Передаем данные в Sidebar */}
-        <Sidebar sidebarData={sidebarData}/>
+        <Sidebar sidebarData={sidebarData} footerData={footerData} />
         <div className="main-container">
 
             <Container maxWidth="xl" sx={{marginBottom: 4, marginTop: { xs: 3, md: 5, lg: 10 }}}>

@@ -4,10 +4,6 @@
     "displayName": "menu-dropdown"
   },
   "options": {},
-  "attributes": {
-    "title": {
-      "type": "string"
-    }
-  },
+  "attributes": {},
   "config": {}
 }
