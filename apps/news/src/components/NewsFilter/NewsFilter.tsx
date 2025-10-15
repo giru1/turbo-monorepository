@@ -18,6 +18,7 @@ import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { ru } from 'date-fns/locale';
 import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
+import { Category } from "@/types/news";
 
 interface NewsFilterProps {
     onFilterChange: (filters: {
@@ -26,15 +27,16 @@ interface NewsFilterProps {
         author?: string;
         date?: string;
         dateRange?: { start: Date | null; end: Date | null };
+        specificDate?: string;
     }) => void;
-    categories: any[];
+    categories: Category[];
     availableTags: string[];
     availableAuthors: string[];
-    availableDates: string[];
     currentFilters: {
         category: string;
         tag: string;
         author: string;
+        date: string;
     };
 }
 
@@ -43,7 +45,6 @@ const NewsFilter: React.FC<NewsFilterProps> = ({
                                                    categories,
                                                    availableTags,
                                                    availableAuthors,
-                                                   availableDates,
                                                    currentFilters
                                                }) => {
     const [dateRange, setDateRange] = useState<{ start: Date | null; end: Date | null }>({
@@ -309,8 +310,12 @@ const NewsFilter: React.FC<NewsFilterProps> = ({
                         {currentFilters.date && !dateRange.start && !dateRange.end && (
                             <Chip
                                 label={`Дата: ${currentFilters.date}`}
-                                onDelete={() => onFilterChange({ ...currentFilters, date: '' })}
-                                size="small"
+                                onDelete={() => onFilterChange({
+                                    ...currentFilters,
+                                    specificDate: '', // Используйте specificDate вместо date
+                                    date: ''
+                                })}
+                                sx={{ m: 0.5 }}
                             />
                         )}
                     </Box>

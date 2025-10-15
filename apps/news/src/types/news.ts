@@ -12,15 +12,16 @@ export interface Tag {
 export interface Category {
     id: string;
     name: string;
+    alias: string;
 }
 
 export interface NewsItem {
     title: string;
+    alias: string;
     desc: string;
     date: string;
     tags: Tag[];
     image: string;
-    imageurl: string;
     gallery: string[];
     authors: Author[];
     category?: Category;
@@ -32,7 +33,6 @@ export interface NewsDetailProps {
     date: string;
     tags: Tag[];
     image: string;
-    imageurl: string;
     gallery: string[];
     authors: Author[];
     category?: Category;
@@ -46,4 +46,36 @@ export interface NewsProps {
     img?: string;
     tags?: string[];
     maxLength?: number;
+}
+
+export interface StrapiNewsItem {
+    id: number;
+    title: string;
+    alias: string;
+    introtext: string;
+    fulltext: string;
+    created: string;
+    hits: number;
+    featured: boolean;
+    image: {
+        url: string;
+        alternativeText: string | null;
+    } | null;
+    gallery: Array<{
+        url: string;
+        alternativeText: string | null;
+    }> | null;
+    category: {
+        id: number;
+        name: string;
+        alias: string;
+    } | null;
+    author: {
+        id: number;
+        name: string;
+    } | null;
+    tags: Array<{
+        id: number;
+        name: string;
+    }>;
 }

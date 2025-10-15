@@ -130,6 +130,7 @@ export default function Footer({ footerData }: FooterProps) {
                     </Grid>
                 </Container>
             </footer>
+
         </>
     );
 }

@@ -1,6 +1,6 @@
 import NewsDetail from "../../../components/NewsDetail/NewsDetail";
 import { notFound } from "next/navigation";
-import { NewsItem, Author, Tag, Category } from "@/types/news";
+import { NewsItem, Author, StrapiNewsItem } from "@/types/news";
 import { Grid, Container } from "@mui/material";
 import NewsSidebar from "./components/NewsSidebar";
 import { strapiClient } from "@/lib/strapi-client";
@@ -20,7 +20,7 @@ export async function generateStaticParams() {
         console.log('📝 Найдено новостей для статической генерации:', news.length);
 
         // Возвращаем все slug'и для статической генерации
-        const params = news.map((item) => ({
+        const params = news.map((item: NewsItem) => ({
             slug: item.alias,
         }));
 
@@ -42,7 +42,7 @@ export default async function NewsPage({ params }: Props) {
         const newsResponse = await strapiClient.getNewsBySlug(slug);
         console.log('📄 Ответ от Strapi:', newsResponse);
 
-        const newsItem = newsResponse.data?.[0];
+        const newsItem: StrapiNewsItem | null = newsResponse.data?.[0] || null;
 
         if (!newsItem) {
             console.log('❌ Новость не найдена для slug:', slug);
@@ -54,30 +54,35 @@ export default async function NewsPage({ params }: Props) {
         // Форматируем данные для компонента
         const formattedNewsItem: NewsItem = {
             title: newsItem.title,
+            alias: newsItem.alias,
             desc: newsItem.introtext + (newsItem.fulltext ? `${newsItem.fulltext}` : ''),
             date: new Date(newsItem.created).toLocaleDateString('ru-RU', {
                 day: 'numeric',
                 month: 'long',
                 year: 'numeric'
             }),
-            image: getMainImage(newsItem), // Используем исправленную функцию
-            imageurl: newsItem.imageurl,
-            tags: newsItem.tags?.map(tag => tag.name) || [],
+            image: getMainImage(newsItem),
+            tags: newsItem.tags?.map(tag => ({ id: tag.id.toString(), name: tag.name })) || [],
             gallery: getNewsGallery(newsItem),
             authors: getAuthors(newsItem),
-            category: newsItem.category?.name || 'Без категории',
+            category: newsItem.category ? {
+                id: newsItem.category.id.toString(),
+                name: newsItem.category.name,
+                alias: newsItem.category.alias
+            } : undefined,
         };
+
         console.log('📝 Форматированные данные новости:', formattedNewsItem);
+
         return (
             <Container maxWidth="xl" sx={{ py: 4 }}>
                 <Grid container spacing={4}>
                     <Grid size={{xs: 12, md: 4}}>
-
                         <NewsSidebar
                             authors={formattedNewsItem.authors}
                             date={formattedNewsItem.date}
-                            originalDate={newsItem.created} // Передаем оригинальную дату из Strapi
-                            tags={formattedNewsItem.tags}
+                            originalDate={newsItem.created}
+                            tags={formattedNewsItem.tags.map(tag => tag.name)}
                             currentSlug={slug}
                         />
                     </Grid>
@@ -87,8 +92,7 @@ export default async function NewsPage({ params }: Props) {
                             desc={formattedNewsItem.desc}
                             date={formattedNewsItem.date}
                             tags={formattedNewsItem.tags}
-                            image={formattedNewsItem.image} // Используем image вместо imageurl
-                            imageurl={formattedNewsItem.image} // Тоже используем image для consistency
+                            image={formattedNewsItem.image}
                             gallery={formattedNewsItem.gallery}
                             authors={formattedNewsItem.authors}
                             category={formattedNewsItem.category}
@@ -105,20 +109,14 @@ export default async function NewsPage({ params }: Props) {
 }
 
 // Функция для получения основного изображения
-function getMainImage(newsItem: any): string | null {
+function getMainImage(newsItem: StrapiNewsItem): string {
     console.log('📸 Поиск основного изображения для новости:', newsItem.title);
 
     // 1. Приоритет: локальное изображение из Strapi
     if (newsItem.image?.url) {
-        const imageUrl = newsItem.image.url;
-        console.log('✅ Основное изображение из Strapi:', imageUrl);
-        return imageUrl;
-    }
-
-    // 2. Резерв: imageurl (внешняя ссылка)
-    if (newsItem.imageurl) {
-        console.log('✅ Основное изображение из imageurl:', newsItem.imageurl);
-        return newsItem.imageurl;
+        const image = newsItem.image.url;
+        console.log('✅ Основное изображение из Strapi:', image);
+        return image;
     }
 
     // 3. Заглушка если нет изображений
@@ -127,10 +125,9 @@ function getMainImage(newsItem: any): string | null {
 }
 
 // Вспомогательные функции
-function getNewsGallery(newsItem: any): string[] {
+function getNewsGallery(newsItem: StrapiNewsItem): string[] {
     console.log('🖼️ Поиск изображений галереи для новости:', newsItem.title);
     console.log('📸 Главное изображение:', newsItem.image);
-    console.log('🔗 Image URL:', newsItem.imageurl);
     console.log('🖼️ Галерея:', newsItem.gallery);
 
     const images: string[] = [];
@@ -138,7 +135,7 @@ function getNewsGallery(newsItem: any): string[] {
 
     // Добавляем изображения из галереи (исключая дубликаты с основным изображением)
     if (newsItem.gallery && Array.isArray(newsItem.gallery)) {
-        newsItem.gallery.forEach((img: any, index: number) => {
+        newsItem.gallery.forEach((img, index: number) => {
             if (img.url) {
                 const galleryImageUrl = img.url;
                 // Проверяем, что это не дубликат основного изображения
@@ -169,7 +166,7 @@ function getNewsGallery(newsItem: any): string[] {
     return images;
 }
 
-function getAuthors(newsItem: any): Author[] {
+function getAuthors(newsItem: StrapiNewsItem): Author[] {
     const authors: Author[] = [];
 
     console.log('👥 Поиск участников для новости:', newsItem.title);

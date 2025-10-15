@@ -15,11 +15,10 @@ import { Carousel } from 'react-responsive-carousel';
 import "react-responsive-carousel/lib/styles/carousel.min.css";
 import {
     CalendarToday,
-    Person,
     LocalOffer
 } from "@mui/icons-material";
 import React from "react";
-import { NewsItem, Author, Tag, Category, NewsDetailProps } from "@/types/news";
+import { Author, NewsDetailProps } from "@/types/news";
 
 
 const StyledPaper = styled(Paper)(({ theme }) => ({
@@ -99,7 +98,6 @@ export default function NewsDetail({
                                        desc,
                                        date,
                                        image,
-                                       imageurl,
                                        gallery= [],
                                        authors = [],
                                        tags = []
@@ -108,7 +106,7 @@ export default function NewsDetail({
     const isMobile = useMediaQuery(theme.breakpoints.down('md'));
 
     // Если есть дополнительные изображения, используем их вместе с основным
-    const allImages = imageurl ? [imageurl, ...gallery] : gallery;
+    const allImages = image ? [image, ...gallery] : gallery;
 
 
     return (
@@ -203,7 +201,7 @@ export default function NewsDetail({
                                 {tags.map((tag, index) => (
                                     <TagChip
                                         key={index}
-                                        label={tag}
+                                        label={tag.name}
                                         size="small"
                                     />
                                 ))}

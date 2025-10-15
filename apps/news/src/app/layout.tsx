@@ -24,10 +24,10 @@ export default async function RootLayout({children}: Readonly<{ children: React.
         <Head/>
         <body>
         {/* Передаем данные в Sidebar */}
-        <Sidebar sidebarData={sidebarData} footerData={footerData} />
+        <Sidebar sidebarData={sidebarData} footerData={footerData}/>
         <div className="main-container">
 
-            <Container maxWidth="xl" sx={{marginBottom: 4, marginTop: { xs: 3, md: 5, lg: 10 }}}>
+            <Container maxWidth="xl" sx={{marginBottom: 4, marginTop: {xs: 3, md: 5, lg: 10}}}>
                 <header className="header">
                     <Grid container>
                         <Grid size={{xs: 12, md: 6, lg: 6, xl: 7}}>
@@ -44,9 +44,10 @@ export default async function RootLayout({children}: Readonly<{ children: React.
             </Container>
 
             {children}
-            <Footer footerData={footerData} />
+            <Footer footerData={footerData}/>
         </div>
         </body>
+        {/*<script src="../../public/static-fix.js"/>*/}
         </html>
     );
 }

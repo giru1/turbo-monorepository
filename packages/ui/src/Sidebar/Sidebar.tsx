@@ -37,7 +37,7 @@ export default function Sidebar({ sidebarData, footerData }: SidebarProps) {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [hoveredItem, setHoveredItem] = useState<number | null>(null);
     const menuRef = useRef<HTMLDivElement>(null);
-    const hoverTimeoutRef = useRef<NodeJS.Timeout>();
+    const hoverTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
     const toggleMenu = () => {
         setIsMenuOpen(!isMenuOpen);

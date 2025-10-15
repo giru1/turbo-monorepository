@@ -569,7 +569,6 @@ export interface ApiNewsItemNewsItem extends Struct.CollectionTypeSchema {
     gallery: Schema.Attribute.Media<'images', true>;
     hits: Schema.Attribute.Integer & Schema.Attribute.DefaultTo<0>;
     image: Schema.Attribute.Media<'images'>;
-    imageurl: Schema.Attribute.String;
     introtext: Schema.Attribute.Text;
     locale: Schema.Attribute.String & Schema.Attribute.Private;
     localizations: Schema.Attribute.Relation<

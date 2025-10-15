@@ -11,7 +11,7 @@ interface NewsSidebarProps {
     currentSlug: string;
 }
 
-export default function NewsSidebar({ authors, date, originalDate, tags, currentSlug }: NewsSidebarProps) {
+export default function NewsSidebar({ authors, date, originalDate, tags }: NewsSidebarProps) {
     // Функция для получения даты в правильном формате для URL
     const getDateForUrl = (): string => {
         if (originalDate) {
