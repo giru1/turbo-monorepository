@@ -1,17 +1,17 @@
 const nextConfig = {
     output: 'export',
     trailingSlash: true,
-    basePath: '/news/dist', // Оставьте пустым для текущей директории
-    assetPrefix: './', // Оставьте пустым для текущей директории
+    basePath: '', // Оставьте пустым для текущей директории
+    assetPrefix: '', // Оставьте пустым для текущей директории
     distDir: 'dist',
     images: {
         unoptimized: true,
     },
-    generateBuildId: async () => 'static-build',
+    // generateBuildId: async () => 'static-build',
     experimental: {
 
         externalDir: true, // ✅ Разрешаем импорт из внешних папок
-        missingSuspenseWithCSRBailout: false,
+        // missingSuspenseWithCSRBailout: false,
     },
     transpilePackages: ['@repo/ui'],
     // Показывать подробные ошибки в dev режиме
