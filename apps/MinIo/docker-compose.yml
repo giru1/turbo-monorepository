@@ -10,6 +10,10 @@ services:
       - MINIO_ROOT_USER=admin
       - MINIO_ROOT_PASSWORD=admin123
     volumes:
-      - /mnt/data:/data
+      - minio_data:/data
       - ./cors.json:/etc/minio/cors.json
     command: server /data --console-address ":9001"
+
+volumes:
+  minio_data:
+    driver: local

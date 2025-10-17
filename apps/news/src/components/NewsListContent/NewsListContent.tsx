@@ -1,11 +1,10 @@
-'use client';
 import styles from "../../app/page.module.css";
 import { Grid, Container, Typography, Box, Button, CircularProgress } from "@mui/material";
 import News from "../../components/News/News";
 import NewsFilter from "../../components/NewsFilter/NewsFilter";
 import React, { useState, useEffect, useCallback, useRef } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
-import { strapiClient } from "../../lib/strapi-client";
+import { strapiClient } from "@/lib/strapi-client";
 import { StrapiNewsItem, Category } from "@/types/news";
 
 // Этот компонент содержит useSearchParams

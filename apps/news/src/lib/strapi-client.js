@@ -1,9 +1,20 @@
 class StrapiClient {
     constructor() {
-        this.baseURL = process.env.NEXT_PUBLIC_STRAPI_URL || 'http://localhost:1337';
-        this.token = process.env.STRAPI_TOKEN;
+        this.baseURL = process.env.NEXT_PUBLIC_STRAPI_URL;
+        this.token = process.env.NEXT_PUBLIC_STRAPI_TOKEN;
         console.log('🔧 StrapiClient инициализирован с URL:', this.baseURL);
+        console.log(111111111111111111111111111);
+        console.log(111111111111111111111111111);
+        console.log(111111111111111111111111111);
+        console.log(111111111111111111111111111);
+        console.log(111111111111111111111111111);
+        console.log(111111111111111111111111111);
+        console.log(111111111111111111111111111);
+        console.log(process.env.NEXT_PUBLIC_STRAPI_TOKEN);
+        console.log(process.env.NEXT_PUBLIC_STRAPI_URL);
     }
+
+
 
     async fetchAPI(endpoint, options = {}) {
         const url = `${this.baseURL}${endpoint}`;

@@ -1,5 +1,5 @@
 export async function getFooterData() {
-    const API_URL = process.env.STRAPI_API_URL || "http://127.0.0.1:1337";
+    const API_URL = process.env.NEXT_PUBLIC_STRAPI_URL;
 
     try {
         const response = await fetch(`${API_URL}/api/Sites?populate[Footer][populate][FooterMenu][populate]=*`);
